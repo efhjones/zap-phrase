@@ -10,3 +10,14 @@ const baseApi = "/api";
 app.get(`${baseApi}/players`, (req, res) => {
   res.send({ players: ["Emily", "Rob", "JC", "Fernando", "Claudiu"] });
 });
+
+app.get(`${baseApi}/phrases`, (req, res) => {
+  res.send({
+    phrases: [
+      "A blessing in disguise",
+      "A dime a dozen",
+      "Better late than never",
+      "Beat around the bush"
+    ]
+  });
+});

@@ -13,26 +13,19 @@ class Game extends Component {
   state = {
     players: [],
     arePlayersLoading: false,
-    phrases: [
-      "A blessing in disguise",
-      "A dime a dozen",
-      "Better late than never",
-      "Beat around the bush"
-    ],
+    phrases: [],
     remainingPhrases: null,
     currentPlayer: null,
     currentPhrase: null
   };
 
   componentDidMount() {
-    this.setInitialValues();
-    this.getPlayers()
-      .then(res => this.setState({ players: _.shuffle(res.players) }))
-      .catch(err => console.log(err));
+    this.loadPlayers();
+    this.loadPhrases();
   }
 
-  getPlayers = async () => {
-    const response = await fetch("/api/players");
+  getData = async dataType => {
+    const response = await fetch(`/api/${dataType}`);
     const body = await response.json();
 
     if (response.status !== 200) {
@@ -41,30 +34,44 @@ class Game extends Component {
     return body;
   };
 
+  loadPlayers = () => {
+    this.getData("players")
+      .then(res => {
+        const shuffledPlayers = _.shuffle(res.players);
+        this.setState(
+          { players: shuffledPlayers, currentPlayer: shuffledPlayers[0] },
+          () => this.logState("players loaded: ")
+        );
+      })
+      .catch(err => console.log(err));
+  };
+
+  loadPhrases = () => {
+    this.getData("phrases")
+      .then(res =>
+        this.setState(
+          {
+            phrases: res.phrases,
+            remainingPhrases: _.shuffle(res.phrases)
+          },
+          () => this.logState("phrases loaded: ")
+        )
+      )
+      .catch(err => console.log(err));
+  };
+
   componentDidUpdate(prevProps, prevState) {
-    if (_.isEmpty(this.state.remainingPhrases)) {
+    if (
+      _.isEmpty(prevState.remainingPhrases) &&
+      !_.isEmpty(this.state.phrases)
+    ) {
+      const shuffledPhrases = _.shuffle(this.state.phrases);
       this.setState({
-        remainingPhrases: _.shuffle(this.state.phrases)
-      });
-    }
-    if (prevState.players.length !== this.state.players.length) {
-      this.setState({
-        currentPlayer: this.state.players[0]
+        remainingPhrases: shuffledPhrases,
+        currentPhrase: shuffledPhrases[0]
       });
     }
   }
-
-  setInitialValues = () => {
-    const shuffledPhrases = _.shuffle(this.state.phrases);
-    this.setState(
-      {
-        remainingPhrases: shuffledPhrases,
-        currentPlayer: this.state.players[0],
-        currentPhrase: shuffledPhrases[0]
-      },
-      this.logState
-    );
-  };
 
   getNextItem = (items, currentItem) => {
     const currentIndex = _.findIndex(items, item => item === currentItem);
@@ -72,8 +79,8 @@ class Game extends Component {
     return items[nextIndex];
   };
 
-  logState = () => {
-    console.log(this.state);
+  logState = message => {
+    console.log(message + JSON.stringify(this.state));
   };
 
   setNextPlayer = () => {
