@@ -1,5 +1,6 @@
 import _ from "lodash";
 import React, { Component } from "react";
+import socketIOClient from "socket.io-client";
 
 import "./styles.css";
 // baby workflow;
@@ -10,15 +11,28 @@ import "./styles.css";
 //  When that person hits next, choose the next person and next phrase
 
 class Game extends Component {
-  state = {
-    players: [],
-    arePlayersLoading: false,
-    phrases: [],
-    remainingPhrases: null,
-    currentPlayer: null,
-    currentPhrase: null
-  };
+  constructor() {
+    super();
+    this.state = {
+      players: [],
+      arePlayersLoading: false,
+      phrases: [],
+      remainingPhrases: null,
+      currentPlayer: null,
+      currentPhrase: null,
+      endpoint: "http://localhost:5000"
+    };
 
+    this.socket = socketIOClient(this.state.endpoint);
+    this.socket.on("player changed", player => {
+      this.setState({
+        currentPlayer: player
+      });
+    });
+    this.socket.on("phrase changed", phrase => {
+      this.setState({ currentPhrase: phrase });
+    });
+  }
   componentDidMount() {
     this.loadPlayers();
     this.loadPhrases();
@@ -40,7 +54,10 @@ class Game extends Component {
         const shuffledPlayers = _.shuffle(res.players);
         this.setState(
           { players: shuffledPlayers, currentPlayer: shuffledPlayers[0] },
-          () => this.logState("players loaded: ")
+          () => {
+            this.logState("players loaded: ");
+            this.socket.emit("set next player", this.state.currentPlayer);
+          }
         );
       })
       .catch(err => console.log(err));
@@ -48,15 +65,20 @@ class Game extends Component {
 
   loadPhrases = () => {
     this.getData("phrases")
-      .then(res =>
+      .then(res => {
+        const shuffledPhrases = _.shuffle(res.phrases);
         this.setState(
           {
             phrases: res.phrases,
-            remainingPhrases: _.shuffle(res.phrases)
+            remainingPhrases: shuffledPhrases,
+            currentPhrase: shuffledPhrases[0]
           },
-          () => this.logState("phrases loaded: ")
-        )
-      )
+          () => {
+            this.logState("phrases loaded: ");
+            this.socket.emit("set next phrase", this.state.currentPhrase);
+          }
+        );
+      })
       .catch(err => console.log(err));
   };
 
@@ -86,7 +108,9 @@ class Game extends Component {
   setNextPlayer = () => {
     const { players, currentPlayer } = this.state;
     const nextPlayer = this.getNextItem(players, currentPlayer);
-    this.setState({ currentPlayer: nextPlayer });
+    this.setState({ currentPlayer: nextPlayer }, () => {
+      this.socket.emit("set next player", this.state.currentPlayer);
+    });
   };
 
   setNextPhrase = () => {
@@ -95,9 +119,14 @@ class Game extends Component {
       remainingPhrases.shift();
     }
     const nextPhrase = remainingPhrases.shift();
-    this.setState({
-      currentPhrase: nextPhrase
-    });
+    this.setState(
+      {
+        currentPhrase: nextPhrase
+      },
+      () => {
+        this.socket.emit("set next phrase", this.state.currentPhrase);
+      }
+    );
   };
 
   render() {
