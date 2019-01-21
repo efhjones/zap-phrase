@@ -11,7 +11,8 @@ import "./styles.css";
 
 class Game extends Component {
   state = {
-    players: ["Emily", "Rob", "JC", "Fernando", "Claudiu"],
+    players: [],
+    arePlayersLoading: false,
     phrases: [
       "A blessing in disguise",
       "A dime a dozen",
@@ -25,12 +26,30 @@ class Game extends Component {
 
   componentDidMount() {
     this.setInitialValues();
+    this.getPlayers()
+      .then(res => this.setState({ players: _.shuffle(res.players) }))
+      .catch(err => console.log(err));
   }
+
+  getPlayers = async () => {
+    const response = await fetch("/api/players");
+    const body = await response.json();
+
+    if (response.status !== 200) {
+      throw Error(body.message);
+    }
+    return body;
+  };
 
   componentDidUpdate(prevProps, prevState) {
     if (_.isEmpty(this.state.remainingPhrases)) {
       this.setState({
         remainingPhrases: _.shuffle(this.state.phrases)
+      });
+    }
+    if (prevState.players.length !== this.state.players.length) {
+      this.setState({
+        currentPlayer: this.state.players[0]
       });
     }
   }
