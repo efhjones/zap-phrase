@@ -1,6 +1,7 @@
 import _ from "lodash";
 import React, { Component } from "react";
 
+import "./styles.css";
 // baby workflow;
 //  start with list of players on different teams
 //  pick a phrase
@@ -76,17 +77,33 @@ class Game extends Component {
   render() {
     const { currentPlayer, currentPhrase } = this.state;
     return (
-      <div>
-        <div className="player">Current Player: {currentPlayer}</div>
-        <div className="player">Current phrase: {currentPhrase}</div>
-        <button
-          onClick={() => {
-            this.setNextPlayer();
-            this.setNextPhrase();
-          }}
-        >
-          Next
-        </button>
+      <div className="vertical-section">
+        <section className="vertical-section">
+          <span className="player-heading">Current Player:</span>
+          <span className="player-name">{currentPlayer}</span>
+        </section>
+        <section className="vertical-section">
+          <span className="phrase">{currentPhrase}</span>
+        </section>
+        <section className="horizontal-section">
+          <button
+            className="skip button"
+            onClick={() => {
+              this.setNextPhrase();
+            }}
+          >
+            Skip
+          </button>
+          <button
+            className="next button"
+            onClick={() => {
+              this.setNextPlayer();
+              this.setNextPhrase();
+            }}
+          >
+            Next
+          </button>
+        </section>
       </div>
     );
   }

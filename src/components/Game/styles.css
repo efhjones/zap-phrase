@@ -1,0 +1,52 @@
+.vertical-section {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 30px 10px;
+}
+
+.horizontal-section {
+  display: flex;
+  flex-direction: row;
+  margin: 30px 10px;
+}
+
+.player-heading {
+  text-transform: uppercase;
+  font-weight: 600;
+  font-size: 2.4vw;
+}
+
+.player-name {
+  text-transform: uppercase;
+  font-weight: 600;
+  font-size: 5vw;
+}
+
+.phrase {
+  text-transform: uppercase;
+  font-weight: 600;
+  font-size: 6vw;
+}
+
+.button {
+  border-radius: 5px;
+  color: white;
+  text-transform: uppercase;
+  font-weight: 600;
+  width: 40vw;
+  font-size: 400%;
+  height: 40vh;
+  max-height: 175px;
+  max-width: 300px;
+  margin: 0 4vw;
+  min-width: 200px;
+}
+
+.next {
+  background-color: #97d320;
+}
+
+.skip {
+  background-color: #c2c6d6;
+}

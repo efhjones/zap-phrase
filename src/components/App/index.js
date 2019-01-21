@@ -7,9 +7,9 @@ import "./styles.css";
 class App extends Component {
   render() {
     return (
-      <div className="App">
+      <main className="container">
         <Game />
-      </div>
+      </main>
     );
   }
 }
