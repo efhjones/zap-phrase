@@ -2,6 +2,8 @@ import _ from "lodash";
 import React, { Component } from "react";
 import socketIOClient from "socket.io-client";
 
+import JoinGame from "../JoinGame";
+
 import "./styles.css";
 // baby workflow;
 //  start with list of players on different teams
@@ -11,16 +13,16 @@ import "./styles.css";
 //  When that person hits next, choose the next person and next phrase
 
 class Game extends Component {
-  constructor() {
-    super();
+  constructor(props) {
+    super(props);
     this.state = {
-      players: [],
-      arePlayersLoading: false,
-      phrases: [],
+      players: props.players,
+      phrases: props.phrases,
       remainingPhrases: null,
-      currentPlayer: null,
+      currentPlayer: props.players[0].name,
       currentPhrase: null,
-      endpoint: "http://localhost:5000"
+      endpoint: "http://localhost:5000",
+      name: null
     };
 
     this.socket = socketIOClient(this.state.endpoint);
@@ -33,8 +35,8 @@ class Game extends Component {
       this.setState({ currentPhrase: phrase });
     });
   }
+
   componentDidMount() {
-    this.loadPlayers();
     this.loadPhrases();
   }
 
@@ -46,21 +48,6 @@ class Game extends Component {
       throw Error(body.message);
     }
     return body;
-  };
-
-  loadPlayers = () => {
-    this.getData("players")
-      .then(res => {
-        const shuffledPlayers = _.shuffle(res.players);
-        this.setState(
-          { players: shuffledPlayers, currentPlayer: shuffledPlayers[0] },
-          () => {
-            this.logState("players loaded: ");
-            this.socket.emit("set next player", this.state.currentPlayer);
-          }
-        );
-      })
-      .catch(err => console.log(err));
   };
 
   loadPhrases = () => {
@@ -96,7 +83,7 @@ class Game extends Component {
   }
 
   getNextItem = (items, currentItem) => {
-    const currentIndex = _.findIndex(items, item => item === currentItem);
+    const currentIndex = _.findIndex(items, item => item.name === currentItem);
     const nextIndex = 1 + currentIndex === items.length ? 0 : 1 + currentIndex;
     return items[nextIndex];
   };
@@ -106,11 +93,9 @@ class Game extends Component {
   };
 
   setNextPlayer = () => {
-    const { players, currentPlayer } = this.state;
+    const { players, currentPlayer } = this.props;
     const nextPlayer = this.getNextItem(players, currentPlayer);
-    this.setState({ currentPlayer: nextPlayer }, () => {
-      this.socket.emit("set next player", this.state.currentPlayer);
-    });
+    this.socket.emit("set next player", nextPlayer);
   };
 
   setNextPhrase = () => {
@@ -119,18 +104,11 @@ class Game extends Component {
       remainingPhrases.shift();
     }
     const nextPhrase = remainingPhrases.shift();
-    this.setState(
-      {
-        currentPhrase: nextPhrase
-      },
-      () => {
-        this.socket.emit("set next phrase", this.state.currentPhrase);
-      }
-    );
+    this.socket.emit("set next phrase", nextPhrase);
   };
 
   render() {
-    const { currentPlayer, currentPhrase } = this.state;
+    const { currentPlayer } = this.props;
     return (
       <div className="vertical-section">
         <section className="vertical-section">
@@ -138,7 +116,7 @@ class Game extends Component {
           <span className="player-name">{currentPlayer}</span>
         </section>
         <section className="vertical-section">
-          <span className="phrase">{currentPhrase}</span>
+          <span className="phrase">{this.state.currentPhrase}</span>
         </section>
         <section className="horizontal-section">
           <button
