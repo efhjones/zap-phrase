@@ -64,13 +64,15 @@ class JoinGame extends Component {
             </button>
           </section>
         )}
-        <button
-          disabled={players.length < 2}
-          className="button start"
-          onClick={this.props.startGame}
-        >
-          {players.length >= 2 ? "start" : "need moar players"}
-        </button>
+        {!!this.props.name && (
+          <button
+            disabled={players.length < 2}
+            className="button start"
+            onClick={this.props.startGame}
+          >
+            {players.length >= 2 ? "start" : "need moar players"}
+          </button>
+        )}
       </div>
     );
   }
