@@ -22,7 +22,6 @@ class App extends Component {
     this.socket = socketIOClient(this.state.endpoint);
 
     this.socket.on("player changed", player => {
-      debugger;
       this.setState({
         currentPlayer: player.name
       });
@@ -33,6 +32,10 @@ class App extends Component {
 
     this.socket.on("player added", players => {
       this.setState({ players }, this.logState("players"));
+    });
+
+    this.socket.on("game joined", players => {
+      this.setState({ players });
     });
 
     this.socket.on("game started", game => {
@@ -60,7 +63,6 @@ class App extends Component {
 
   render() {
     const { players, currentGame, name, currentPlayer } = this.state;
-    debugger;
     return (
       <main className="container">
         {_.isEmpty(players) || !currentGame ? (

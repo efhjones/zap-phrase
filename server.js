@@ -20,6 +20,8 @@ let currentGame = null;
 io.on("connection", socket => {
   console.log("User connected");
 
+  socket.broadcast.emit("game joined", players);
+
   socket.on("add player", name => {
     players = [...players, { socketId: socket.id, name }];
     console.log("player added: ", JSON.stringify(players, null, "\t"));

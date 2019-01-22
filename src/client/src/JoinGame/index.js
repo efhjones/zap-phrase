@@ -25,19 +25,26 @@ class JoinGame extends Component {
     const { players } = this.props;
     return (
       <div className="vertical-section">
-        <div>
-          Curent players:
+        <div className="current-players">
+          Current players:
           <ul>
-            {players.map(player => {
-              return <li key={player.socketId}>{player.name}</li>;
-            })}
+            {players.length > 0 ? (
+              players.map(player => {
+                return (
+                  <li key={player.socketId}>
+                    {player.name}
+                    {player.name === this.props.name && (
+                      <span> --That's you!</span>
+                    )}
+                  </li>
+                );
+              })
+            ) : (
+              <span className="no-players">No Players :'(</span>
+            )}
           </ul>
         </div>
-        {this.props.name ? (
-          <div>
-            You're playing as: <span>{this.props.name}</span>
-          </div>
-        ) : (
+        {!this.props.name && (
           <section className="vertical-section">
             <label className="name-label vertical-section">
               What's your name, friend?
@@ -62,7 +69,7 @@ class JoinGame extends Component {
           className="button start"
           onClick={this.props.startGame}
         >
-          Start!
+          {players.length >= 2 ? "start" : "need moar players"}
         </button>
       </div>
     );

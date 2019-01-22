@@ -1,3 +1,9 @@
+.current-players {
+  text-transform: uppercase;
+  font-weight: 600;
+  font-size: 2em;
+}
+
 .name-label {
   font-size: 2em;
   text-transform: uppercase;
