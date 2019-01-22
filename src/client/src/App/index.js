@@ -76,6 +76,7 @@ class App extends Component {
             players={players}
             socket={this.socket}
             currentPlayer={currentPlayer}
+            name={name}
           />
         )}
       </main>

@@ -108,35 +108,40 @@ class Game extends Component {
   };
 
   render() {
-    const { currentPlayer } = this.props;
+    const { currentPlayer, name } = this.props;
     return (
       <div className="vertical-section">
         <section className="vertical-section">
           <span className="player-heading">Current Player:</span>
           <span className="player-name">{currentPlayer}</span>
         </section>
-        <section className="vertical-section">
-          <span className="phrase">{this.state.currentPhrase}</span>
-        </section>
-        <section className="horizontal-section">
-          <button
-            className="skip button"
-            onClick={() => {
-              this.setNextPhrase();
-            }}
-          >
-            Skip
-          </button>
-          <button
-            className="next button"
-            onClick={() => {
-              this.setNextPlayer();
-              this.setNextPhrase();
-            }}
-          >
-            Next
-          </button>
-        </section>
+        {currentPlayer === name && (
+          <div>
+            <section className="vertical-section">
+              <span className="phrase">{this.state.currentPhrase}</span>
+            </section>
+
+            <section className="horizontal-section">
+              <button
+                className="skip button"
+                onClick={() => {
+                  this.setNextPhrase();
+                }}
+              >
+                Skip
+              </button>
+              <button
+                className="next button"
+                onClick={() => {
+                  this.setNextPlayer();
+                  this.setNextPhrase();
+                }}
+              >
+                Next
+              </button>
+            </section>
+          </div>
+        )}
       </div>
     );
   }
