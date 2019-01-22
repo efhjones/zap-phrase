@@ -1,3 +1,16 @@
+.name-label {
+  font-size: 2em;
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+.name-field {
+  font-size: 1em;
+  text-transform: uppercase;
+  font-weight: 600;
+  width: 100%;
+}
+
 .button {
   border-radius: 5px;
   color: white;
@@ -10,6 +23,8 @@
   max-width: 300px;
   margin: 0 4vw;
   min-width: 200px;
+}
+.start {
   background-color: #97d320;
 }
 

@@ -24,7 +24,7 @@ class JoinGame extends Component {
   render() {
     const { players } = this.props;
     return (
-      <div>
+      <div className="vertical-section">
         <div>
           Curent players:
           <ul>
@@ -38,19 +38,24 @@ class JoinGame extends Component {
             You're playing as: <span>{this.props.name}</span>
           </div>
         ) : (
-          <div>
-            <label>
-              Name:
+          <section className="vertical-section">
+            <label className="name-label vertical-section">
+              What's your name, friend?
               <input
+                className="name-field"
                 type="text"
                 value={this.state.name}
                 onChange={this.updateName}
               />
             </label>
-            <button type="submit" onClick={this.joinGame}>
+            <button
+              type="submit"
+              onClick={this.joinGame}
+              className="button start"
+            >
               Join
             </button>
-          </div>
+          </section>
         )}
         <button
           disabled={players.length < 2}
