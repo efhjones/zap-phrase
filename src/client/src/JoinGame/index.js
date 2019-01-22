@@ -1,5 +1,8 @@
 // @flow
 import React, { Component } from "react";
+
+import "./styles.css";
+
 class JoinGame extends Component {
   state = {
     name: ""
@@ -49,7 +52,13 @@ class JoinGame extends Component {
             </button>
           </div>
         )}
-        <button onClick={this.props.startGame}>Start!</button>
+        <button
+          disabled={players.length < 2}
+          className="button start"
+          onClick={this.props.startGame}
+        >
+          Start!
+        </button>
       </div>
     );
   }

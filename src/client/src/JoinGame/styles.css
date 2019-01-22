@@ -1,0 +1,22 @@
+.button {
+  border-radius: 5px;
+  color: white;
+  text-transform: uppercase;
+  font-weight: 600;
+  width: 40vw;
+  font-size: 400%;
+  height: 40vh;
+  max-height: 175px;
+  max-width: 300px;
+  margin: 0 4vw;
+  min-width: 200px;
+  background-color: #97d320;
+}
+
+.button:hover :not(disabled) {
+  cursor: pointer;
+}
+
+.button:disabled {
+  background-color: grey;
+}
