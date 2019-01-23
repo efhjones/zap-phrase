@@ -1,12 +1,12 @@
 # :sparkles:Zap Phrase:sparkles:
 
-A retreat tradition becomes a remote-friendly game!
+A retreat tradition becomes a remote-friendly game! Phrases shall be caught across many timezones.
 
 Treat yo' self:
 `yarn install`
 
-To serve:
-`yarn server`
+`node` or `nodemon server.js`
 
-To develop:
-`yarn run dev`
+`cd src/client`
+
+`yarn start`
