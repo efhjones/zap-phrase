@@ -15,6 +15,7 @@
   text-transform: uppercase;
   font-weight: 600;
   width: 100%;
+  text-align: center;
 }
 
 .button {
@@ -23,7 +24,7 @@
   text-transform: uppercase;
   font-weight: 600;
   width: 40vw;
-  font-size: 400%;
+  font-size: 300%;
   height: 40vh;
   max-height: 175px;
   max-width: 300px;

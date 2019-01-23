@@ -1,5 +1,8 @@
 // @flow
 import React, { Component } from "react";
+import Teams from "./Teams.js";
+
+import { hasSufficientNumbersToPlay } from "../utils/gameUtils";
 
 import "./styles.css";
 
@@ -22,27 +25,12 @@ class JoinGame extends Component {
   };
 
   render() {
-    const { players } = this.props;
+    const { teams, name } = this.props;
+    const canPlay = hasSufficientNumbersToPlay(teams);
     return (
       <div className="vertical-section">
         <div className="current-players">
-          Current players:
-          <ul>
-            {players.length > 0 ? (
-              players.map(player => {
-                return (
-                  <li key={player.socketId}>
-                    {player.name}
-                    {player.name === this.props.name && (
-                      <span> --That's you!</span>
-                    )}
-                  </li>
-                );
-              })
-            ) : (
-              <span className="no-players">No Players :'(</span>
-            )}
-          </ul>
+          <Teams teams={teams} name={name} />
         </div>
         {!this.props.name && (
           <section className="vertical-section">
@@ -56,6 +44,7 @@ class JoinGame extends Component {
               />
             </label>
             <button
+              disabled={this.state.name.length === 0}
               type="submit"
               onClick={this.joinGame}
               className="button start"
@@ -66,11 +55,11 @@ class JoinGame extends Component {
         )}
         {!!this.props.name && (
           <button
-            disabled={players.length < 2}
+            disabled={!canPlay}
             className="button start"
             onClick={this.props.startGame}
           >
-            {players.length >= 2 ? "start" : "need moar players"}
+            {canPlay ? "start" : "need moar players"}
           </button>
         )}
       </div>

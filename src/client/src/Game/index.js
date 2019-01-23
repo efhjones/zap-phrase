@@ -2,7 +2,7 @@ import _ from "lodash";
 import React, { Component } from "react";
 import socketIOClient from "socket.io-client";
 
-import JoinGame from "../JoinGame";
+import { getNextPlayer } from "../utils/gameUtils";
 
 import "./styles.css";
 // baby workflow;
@@ -16,21 +16,14 @@ class Game extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      players: props.players,
       phrases: props.phrases,
       remainingPhrases: null,
-      currentPlayer: props.players[0].name,
       currentPhrase: null,
-      endpoint: "http://localhost:5000",
-      name: null
+      endpoint: "http://localhost:5000"
     };
 
     this.socket = socketIOClient(this.state.endpoint);
-    this.socket.on("player changed", player => {
-      this.setState({
-        currentPlayer: player
-      });
-    });
+
     this.socket.on("phrase changed", phrase => {
       this.setState({ currentPhrase: phrase });
     });
@@ -38,6 +31,19 @@ class Game extends Component {
 
   componentDidMount() {
     this.loadPhrases();
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    if (
+      _.isEmpty(prevState.remainingPhrases) &&
+      !_.isEmpty(this.state.phrases)
+    ) {
+      const shuffledPhrases = _.shuffle(this.state.phrases);
+      this.setState({
+        remainingPhrases: shuffledPhrases,
+        currentPhrase: shuffledPhrases[0]
+      });
+    }
   }
 
   getData = async dataType => {
@@ -69,32 +75,13 @@ class Game extends Component {
       .catch(err => console.log(err));
   };
 
-  componentDidUpdate(prevProps, prevState) {
-    if (
-      _.isEmpty(prevState.remainingPhrases) &&
-      !_.isEmpty(this.state.phrases)
-    ) {
-      const shuffledPhrases = _.shuffle(this.state.phrases);
-      this.setState({
-        remainingPhrases: shuffledPhrases,
-        currentPhrase: shuffledPhrases[0]
-      });
-    }
-  }
-
-  getNextItem = (items, currentItem) => {
-    const currentIndex = _.findIndex(items, item => item.name === currentItem);
-    const nextIndex = 1 + currentIndex === items.length ? 0 : 1 + currentIndex;
-    return items[nextIndex];
-  };
-
   logState = message => {
     console.log(message + JSON.stringify(this.state));
   };
 
   setNextPlayer = () => {
-    const { players, currentPlayer } = this.props;
-    const nextPlayer = this.getNextItem(players, currentPlayer);
+    const { playerLineup, currentPlayer } = this.props;
+    const nextPlayer = getNextPlayer(playerLineup, currentPlayer);
     this.socket.emit("set next player", nextPlayer);
   };
 
@@ -109,13 +96,14 @@ class Game extends Component {
 
   render() {
     const { currentPlayer, name } = this.props;
+    debugger;
     return (
       <div className="vertical-section">
         <section className="vertical-section">
           <span className="player-heading">Current Player:</span>
-          <span className="player-name">{currentPlayer}</span>
+          <span className="player-name">{currentPlayer.name}</span>
         </section>
-        {currentPlayer === name && (
+        {currentPlayer.name === name && (
           <div>
             <section className="vertical-section">
               <span className="phrase">{this.state.currentPhrase}</span>
