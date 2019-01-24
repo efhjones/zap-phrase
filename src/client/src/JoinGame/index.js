@@ -37,7 +37,7 @@ class JoinGame extends Component {
           <Teams teams={teams} name={name} />
         </div>
         {!this.props.name && (
-          <section className="vertical-section">
+          <form className="vertical-section">
             <label className="name-label vertical-section">
               What's your name, friend?
               <input
@@ -55,7 +55,7 @@ class JoinGame extends Component {
             >
               Join
             </button>
-          </section>
+          </form>
         )}
         {!!this.props.name && (
           <button
