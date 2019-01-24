@@ -2,6 +2,7 @@ import _ from "lodash";
 import React, { Component } from "react";
 
 import Clock from "./Clock";
+import Winner from "./Winner";
 
 import { getNextPlayer } from "../utils/gameUtils";
 
@@ -98,11 +99,15 @@ class Game extends Component {
     this.props.socket.emit("set next phrase", nextPhrase);
   };
 
+  startNewGame = () => {
+    this.props.socket.emit("start new game");
+  };
+
   render() {
     const { currentPlayer, name } = this.props;
 
     return this.state.winner ? (
-      <div>{this.state.winner} wins!!!!!</div>
+      <Winner winner={this.state.winner} startNewGame={this.startNewGame} />
     ) : (
       <div className="vertical-section">
         <Clock socket={this.props.socket} />

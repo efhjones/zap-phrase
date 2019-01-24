@@ -5,8 +5,8 @@ class Clock extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      team1: "3:00",
-      team2: "3:00",
+      team1: "0:10",
+      team2: "0:10",
       activeTeam: "team1",
       isCounting: false,
       hasReset: false
@@ -61,6 +61,10 @@ class Clock extends Component {
 
   stopClock = team => {
     this.props.socket.emit("stop clocks");
+    this.setState({
+      team1: "3:00",
+      team2: "3:00"
+    });
     const winner = team === "team1" ? "team2" : "team1";
     this.props.socket.emit("declare winner", winner);
   };

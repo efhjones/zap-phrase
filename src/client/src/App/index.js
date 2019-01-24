@@ -17,8 +17,7 @@ class App extends Component {
       teams: [],
       currentPlayer: null,
       currentGame: null,
-      phrases: [],
-      countingDownOn: null
+      phrases: []
     };
 
     this.socket = socketIOClient(this.state.endpoint);
@@ -46,6 +45,18 @@ class App extends Component {
       });
       this.socket.emit("start clock", { teamId: nextPlayerTeamId });
     });
+
+    this.socket.on(
+      "new game started",
+      ({ teams, currentGame, currentPlayer }) => {
+        this.setState({
+          name: null,
+          teams,
+          currentGame,
+          currentPlayer
+        });
+      }
+    );
 
     this.socket.on("player changed", player => {
       this.setState({
@@ -85,8 +96,7 @@ class App extends Component {
       currentGame,
       name,
       currentPlayer,
-      playerLineup,
-      countingDownOn
+      playerLineup
     } = this.state;
     return (
       <main className="container">
@@ -103,7 +113,6 @@ class App extends Component {
             currentPlayer={currentPlayer}
             name={name}
             playerLineup={playerLineup}
-            countingDownOn={countingDownOn}
             socket={this.socket}
           />
         )}

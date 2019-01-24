@@ -104,6 +104,13 @@ io.on("connection", socket => {
     io.sockets.emit("winner declared", winner);
   });
 
+  socket.on("start new game", () => {
+    teams = [{ id: 1, players: [] }, { id: 2, players: [] }];
+    currentGame = null;
+    currentPlayer = null;
+    io.sockets.emit("new game started", { teams, currentGame, currentPlayer });
+  });
+
   socket.on("disconnect", () => {
     console.log("user disconnected");
   });
