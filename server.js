@@ -20,9 +20,7 @@ let currentGame = null;
 io.on("connection", socket => {
   console.log("User connected");
 
-  socket.on("new connection", () => {
-    socket.emit("connection detected", teams);
-  });
+  socket.emit("connection detected", teams);
 
   socket.on("add player", name => {
     const teamWithFewerPlayers = sortBy(teams, team => {
