@@ -3,8 +3,6 @@ import React, { Component } from "react";
 
 import Clock from "./Clock";
 
-import socketIOClient from "socket.io-client";
-
 import { getNextPlayer } from "../utils/gameUtils";
 
 import "./styles.css";
@@ -26,13 +24,11 @@ class Game extends Component {
       winner: null
     };
 
-    this.socket = socketIOClient(this.state.endpoint);
-
-    this.socket.on("phrase changed", phrase => {
+    this.props.socket.on("phrase changed", phrase => {
       this.setState({ currentPhrase: phrase });
     });
 
-    this.socket.on("winner declared", winner => {
+    this.props.socket.on("winner declared", winner => {
       this.setState({ winner });
     });
   }
@@ -76,7 +72,7 @@ class Game extends Component {
           },
           () => {
             this.logState("phrases loaded: ");
-            this.socket.emit("set next phrase", this.state.currentPhrase);
+            this.props.socket.emit("set next phrase", this.state.currentPhrase);
           }
         );
       })
@@ -90,7 +86,7 @@ class Game extends Component {
   setNextPlayer = () => {
     const { playerLineup, currentPlayer } = this.props;
     const nextPlayer = getNextPlayer(playerLineup, currentPlayer);
-    this.socket.emit("set next player", nextPlayer);
+    this.props.socket.emit("set next player", nextPlayer);
   };
 
   setNextPhrase = () => {
@@ -99,7 +95,7 @@ class Game extends Component {
       remainingPhrases.shift();
     }
     const nextPhrase = remainingPhrases.shift();
-    this.socket.emit("set next phrase", nextPhrase);
+    this.props.socket.emit("set next phrase", nextPhrase);
   };
 
   render() {
@@ -109,7 +105,7 @@ class Game extends Component {
       <div>{this.state.winner} wins!!!!!</div>
     ) : (
       <div className="vertical-section">
-        <Clock />
+        <Clock socket={this.props.socket} />
         <section className="vertical-section">
           <span className="player-heading">Current Player:</span>
           <span className="player-name">{currentPlayer.name}</span>

@@ -1,6 +1,5 @@
 // @flow
 import React, { Component } from "react";
-import socketIOClient from "socket.io-client";
 
 class Clock extends Component {
   constructor(props) {
@@ -13,26 +12,26 @@ class Clock extends Component {
       hasReset: false
     };
 
-    this.socket = socketIOClient(this.state.endpoint);
-
-    this.socket.on("clock started", () => {
+    this.props.socket.on("clock started", () => {
+      debugger;
       this.setState({
         isCounting: true,
         hasReset: false
       });
       this.createNewTime(this.state.activeTeam);
     });
-    this.socket.on("player changed", () => {
+
+    this.props.socket.on("player changed", () => {
       this.switchClock();
     });
 
-    this.socket.on("clock paused", () => {
+    this.props.socket.on("clock paused", () => {
       this.setState({ isCounting: false });
       clearTimeout(this.team1Timeout);
       clearTimeout(this.team2Timeout);
     });
 
-    this.socket.on("clock reset", () => {
+    this.props.socket.on("clock reset", () => {
       this.setState({ isCounting: false, hasReset: true });
       this.setState({
         team1: "3:00",
@@ -42,7 +41,7 @@ class Clock extends Component {
       clearTimeout(this.team2Timeout);
     });
 
-    this.socket.on("clock stopped", () => {
+    this.props.socket.on("clocks stopped", () => {
       clearTimeout(this.team1Timeout);
       clearTimeout(this.team2Timeout);
       this.team1Timeout = null;
@@ -61,9 +60,9 @@ class Clock extends Component {
   };
 
   stopClock = team => {
-    this.socket.emit("stop clocks");
+    this.props.socket.emit("stop clocks");
     const winner = team === "team1" ? "team2" : "team1";
-    this.socket.emit("declare winner", winner);
+    this.props.socket.emit("declare winner", winner);
   };
 
   maybePrefix0 = number => {
@@ -86,15 +85,15 @@ class Clock extends Component {
   };
 
   pauseClock = () => {
-    this.socket.emit("pause clock");
+    this.props.socket.emit("pause clock");
   };
 
   resumeClock = () => {
-    this.socket.emit("start clock");
+    this.props.socket.emit("resume clock");
   };
 
   resetClock = () => {
-    this.socket.emit("reset clock");
+    this.props.socket.emit("reset clock");
   };
 
   render() {
@@ -106,7 +105,7 @@ class Clock extends Component {
         {this.state.isCounting && (
           <button onClick={this.pauseClock}>Pause</button>
         )}
-        {(this.state.hasReset || !this.state.isCounting) && (
+        {!this.state.isCounting && (
           <button onClick={this.resumeClock}>Resume</button>
         )}
         {!this.state.isCounting && (

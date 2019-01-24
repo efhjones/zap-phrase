@@ -75,10 +75,6 @@ class App extends Component {
     this.socket.emit("add player", name);
   };
 
-  startGame = () => {
-    this.socket.emit("start game", "game1");
-  };
-
   logState = label => {
     console.log(`${label}: ` + JSON.stringify(this.state));
   };
@@ -96,20 +92,19 @@ class App extends Component {
       <main className="container">
         {!currentGame ? (
           <JoinGame
-            socket={this.socket}
-            startGame={this.startGame}
             teams={teams}
             joinGame={this.joinGame}
             name={name}
+            socket={this.socket}
           />
         ) : (
           <Game
             teams={teams}
-            socket={this.socket}
             currentPlayer={currentPlayer}
             name={name}
             playerLineup={playerLineup}
             countingDownOn={countingDownOn}
+            socket={this.socket}
           />
         )}
       </main>

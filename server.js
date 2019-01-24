@@ -72,11 +72,15 @@ io.on("connection", socket => {
   });
 
   socket.on("start clock", () => {
-    io.sockets.emit("clock started");
+    socket.emit("clock started");
   });
 
   socket.on("pause clock", () => {
     io.sockets.emit("clock paused");
+  });
+
+  socket.on("resume clock", () => {
+    io.sockets.emit("clock started");
   });
 
   socket.on("reset clock", () => {
