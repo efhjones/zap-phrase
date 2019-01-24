@@ -1,5 +1,8 @@
 import _ from "lodash";
 import React, { Component } from "react";
+
+import Clock from "./Clock";
+
 import socketIOClient from "socket.io-client";
 
 import { getNextPlayer } from "../utils/gameUtils";
@@ -19,13 +22,18 @@ class Game extends Component {
       phrases: props.phrases,
       remainingPhrases: null,
       currentPhrase: null,
-      endpoint: "http://localhost:5000"
+      endpoint: "http://localhost:5000",
+      winner: null
     };
 
     this.socket = socketIOClient(this.state.endpoint);
 
     this.socket.on("phrase changed", phrase => {
       this.setState({ currentPhrase: phrase });
+    });
+
+    this.socket.on("winner declared", winner => {
+      this.setState({ winner });
     });
   }
 
@@ -96,9 +104,12 @@ class Game extends Component {
 
   render() {
     const { currentPlayer, name } = this.props;
-    debugger;
-    return (
+
+    return this.state.winner ? (
+      <div>{this.state.winner} wins!!!!!</div>
+    ) : (
       <div className="vertical-section">
+        <Clock />
         <section className="vertical-section">
           <span className="player-heading">Current Player:</span>
           <span className="player-name">{currentPlayer.name}</span>

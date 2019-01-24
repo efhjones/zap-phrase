@@ -73,6 +73,18 @@ io.on("connection", socket => {
     io.sockets.emit("game started", { game: currentGame, playerLineup });
   });
 
+  socket.on("start clock", () => {
+    io.sockets.emit("clock started");
+  });
+
+  socket.on("pause clock", () => {
+    io.sockets.emit("clock paused");
+  });
+
+  socket.on("reset clock", () => {
+    io.sockets.emit("clock reset");
+  });
+
   socket.on("set next player", player => {
     currentPlayer = player;
     io.sockets.emit("player changed", currentPlayer);
@@ -80,6 +92,14 @@ io.on("connection", socket => {
 
   socket.on("set next phrase", phrase => {
     io.sockets.emit("phrase changed", phrase);
+  });
+
+  socket.on("stop clocks", () => {
+    io.sockets.emit("clocks stopped");
+  });
+
+  socket.on("declare winner", winner => {
+    io.sockets.emit("winner declared", winner);
   });
 
   socket.on("disconnect", () => {
