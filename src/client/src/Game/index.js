@@ -72,7 +72,6 @@ class Game extends Component {
             currentPhrase: shuffledPhrases[0]
           },
           () => {
-            this.logState("phrases loaded: ");
             this.props.socket.emit("set next phrase", this.state.currentPhrase);
           }
         );

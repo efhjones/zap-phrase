@@ -13,7 +13,6 @@ class Clock extends Component {
     };
 
     this.props.socket.on("clock started", () => {
-      debugger;
       this.setState({
         isCounting: true,
         hasReset: false
