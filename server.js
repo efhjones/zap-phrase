@@ -22,7 +22,6 @@ const server = http.createServer(app);
 const io = socketIO(server);
 
 let teams = [{ id: 1, players: [] }, { id: 2, players: [] }];
-let phrases = [];
 let currentPlayer = null;
 let currentGame = null;
 
@@ -130,34 +129,28 @@ server.listen(port, () => console.log(`Listening on port ${port}`));
 const baseApi = "/api";
 
 app.get(`${baseApi}/phrases`, (req, res) => {
+  let phrases = [];
   console.log("getting phrases");
   base("Table 1")
     .select({
       view: "Grid view"
     })
     .eachPage(
-      function page(records, fetchNextPage) {
-        // This function (`page`) will get called for each page of records.
-
+      (records, fetchNextPage) => {
         records.forEach(function(record) {
           const phrase = record.get("phrase");
           if (phrase) {
-            console.log("adding phrase: ", phrase);
             phrases = phrases.concat(phrase);
           }
         });
-
-        // To fetch the next page of records, call `fetchNextPage`.
-        // If there are more records, `page` will get called again.
-        // If there are no more records, `done` will get called.
         fetchNextPage();
       },
-      function done(err) {
+      err => {
         if (err) {
           console.error(err);
           return;
         }
-        res.send({ phrases });
+        io.sockets.emit("loading done", phrases);
       }
     );
 });

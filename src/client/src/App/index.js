@@ -17,10 +17,26 @@ class App extends Component {
       teams: [],
       currentPlayer: null,
       currentGame: null,
-      phrases: []
+      phrases: [],
+      isLoading: false
     };
 
     this.socket = socketIOClient(this.state.endpoint);
+
+    this.socket.on("loading", () => {
+      debugger;
+      this.setState({
+        isLoading: true
+      });
+    });
+
+    this.socket.on("loading done", phrases => {
+      debugger;
+      this.setState({
+        isLoading: false,
+        phrases
+      });
+    });
 
     this.socket.on("phrase changed", phrase => {
       this.setState({ currentPhrase: phrase });
@@ -71,6 +87,7 @@ class App extends Component {
     });
 
     this.socket.on("connection detected", teams => {
+      debugger;
       this.setState({
         teams
       });
@@ -79,7 +96,25 @@ class App extends Component {
 
   componentDidMount() {
     this.socket.emit("new connection");
+    if (!this.state.isLoading) {
+      this.loadPhrases();
+      this.socket.emit("loading");
+    }
   }
+
+  getData = async dataType => {
+    const response = await fetch(`/api/${dataType}`);
+    const body = await response.json();
+
+    if (response.status !== 200) {
+      throw Error(body.message);
+    }
+    return body;
+  };
+
+  loadPhrases = () => {
+    this.getData("phrases").catch(err => console.error(err));
+  };
 
   joinGame = name => {
     this.socket.emit("join game", name);
@@ -96,9 +131,12 @@ class App extends Component {
       currentGame,
       name,
       currentPlayer,
-      playerLineup
+      playerLineup,
+      isLoading
     } = this.state;
-    return (
+    return isLoading ? (
+      <div className="container">Loading...</div>
+    ) : (
       <main className="container">
         {!currentGame ? (
           <JoinGame
@@ -109,6 +147,7 @@ class App extends Component {
           />
         ) : (
           <Game
+            phrases={this.state.phrases}
             teams={teams}
             currentPlayer={currentPlayer}
             name={name}
