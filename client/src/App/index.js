@@ -12,7 +12,7 @@ class App extends Component {
   constructor() {
     super();
     this.state = {
-      endpoint: "http://localhost:5000",
+      endpoint: window.location.origin,
       name: null,
       teams: [],
       currentPlayer: null,
