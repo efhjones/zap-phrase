@@ -149,6 +149,7 @@ app.get(`${baseApi}/phrases`, (req, res) => {
       err => {
         if (err) {
           console.error(err);
+          res.status(400).send({ error: err });
           return;
         }
         res.status(200).send({ phrases });
