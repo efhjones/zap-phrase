@@ -17,7 +17,7 @@ app.set("port", process.env.PORT || 5000);
 
 // Express only serves static assets in production
 if (process.env.NODE_ENV === "production") {
-  app.use(express.static("client/build"));
+  app.use(express.static(path.join(__dirname, "client/build")));
 }
 
 // This creates our socket using the instance of the server
@@ -131,10 +131,6 @@ io.on(handlers.CONNECTION, socket => {
 });
 
 app.use("/api/", api);
-
-app.get("/", (req, res) => {
-  res.sendFile(path.join(__dirname + "/client/build/index.html"));
-});
 
 server.listen(app.get("port"), () =>
   console.log(`Listening on port ${app.get("port")}`)
