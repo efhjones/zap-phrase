@@ -1,10 +1,11 @@
 const express = require("express");
 const http = require("http");
-const api = require("./app/api");
+const path = require("path");
 const socketIO = require("socket.io");
-const { sortBy } = require("lodash");
 require("dotenv").config();
+const { sortBy } = require("lodash");
 
+const api = require("./app/api");
 const handlers = require("./socket/handlers.js");
 
 const app = express();
@@ -130,6 +131,10 @@ io.on(handlers.CONNECTION, socket => {
 });
 
 app.use("/api/", api);
+
+app.get("*", (req, res) => {
+  res.sendFile(path.resolve(__dirname, "client", "build", "index.html"));
+});
 
 server.listen(app.get("port"), () =>
   console.log(`Listening on port ${app.get("port")}`)
