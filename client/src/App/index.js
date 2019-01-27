@@ -23,21 +23,6 @@ class App extends Component {
 
     this.socket = socketIOClient(this.state.endpoint);
 
-    this.socket.on("loading", () => {
-      debugger;
-      this.setState({
-        isLoading: true
-      });
-    });
-
-    this.socket.on("loading done", phrases => {
-      debugger;
-      this.setState({
-        isLoading: false,
-        phrases
-      });
-    });
-
     this.socket.on("phrase changed", phrase => {
       this.setState({ currentPhrase: phrase });
     });
@@ -87,7 +72,6 @@ class App extends Component {
     });
 
     this.socket.on("connection detected", teams => {
-      debugger;
       this.setState({
         teams
       });
@@ -98,11 +82,11 @@ class App extends Component {
     this.socket.emit("new connection");
     if (!this.state.isLoading) {
       this.loadPhrases();
-      this.socket.emit("loading");
     }
   }
 
   getData = async dataType => {
+    console.log("getting phrases");
     const response = await fetch(`/api/${dataType}`);
     const body = await response.json();
 
@@ -113,7 +97,11 @@ class App extends Component {
   };
 
   loadPhrases = () => {
-    this.getData("phrases").catch(err => console.error(err));
+    this.getData("phrases")
+      .then(({ phrases }) => {
+        this.setState({ phrases });
+      })
+      .catch(err => console.error(err));
   };
 
   joinGame = name => {

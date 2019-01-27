@@ -42,7 +42,7 @@ class Clock extends Component {
       clearTimeout(this.team2Timeout);
     });
 
-    this.props.socket.on("clocks stopped", () => {
+    this.props.socket.on("clock stopped", () => {
       clearTimeout(this.team1Timeout);
       clearTimeout(this.team2Timeout);
       this.team1Timeout = null;
@@ -61,7 +61,7 @@ class Clock extends Component {
   };
 
   stopClock = team => {
-    this.props.socket.emit("stop clocks");
+    this.props.socket.emit("stop clock");
     this.setState({
       team1: "3:00",
       team2: "3:00"

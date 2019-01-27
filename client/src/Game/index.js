@@ -51,7 +51,7 @@ class Game extends Component {
   setNextPlayer = () => {
     const { playerLineup, currentPlayer } = this.props;
     const nextPlayer = getNextPlayer(playerLineup, currentPlayer);
-    this.props.socket.emit("set next player", nextPlayer);
+    this.props.socket.emit("change player", nextPlayer);
   };
 
   setNextPhrase = () => {
@@ -60,7 +60,7 @@ class Game extends Component {
       remainingPhrases.shift();
     }
     const nextPhrase = remainingPhrases.shift();
-    this.props.socket.emit("set next phrase", nextPhrase);
+    this.props.socket.emit("change phrase", nextPhrase);
   };
 
   startNewGame = () => {
@@ -78,6 +78,7 @@ class Game extends Component {
           <span className="player-heading">Current Player:</span>
           <span className="player-name">{currentPlayer.name}</span>
         </section>
+        {this.state.currentPhrase}
         {currentPlayer.name === name && (
           <div>
             <section className="vertical-section">
