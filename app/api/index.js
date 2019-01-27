@@ -1,3 +1,6 @@
+const app = require("express")();
 const phrases = require("./phrases");
 
-module.exports = { phrases };
+app.use("/phrases", phrases);
+
+module.exports = app;

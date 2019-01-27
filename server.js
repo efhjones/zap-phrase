@@ -1,6 +1,6 @@
 const express = require("express");
 const http = require("http");
-const { test, phrases } = require("./app/api");
+const api = require("./app/api");
 const socketIO = require("socket.io");
 require("dotenv").config();
 
@@ -120,6 +120,6 @@ io.on("connection", socket => {
   });
 });
 
-server.listen(port, () => console.log(`Listening on port ${port}`));
+app.use("/api/", api);
 
-app.use("/api/phrases", phrases);
+server.listen(port, () => console.log(`Listening on port ${port}`));
