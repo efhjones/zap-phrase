@@ -131,7 +131,7 @@ const baseApi = "/api";
 app.get(`${baseApi}/phrases`, (req, res) => {
   let phrases = [];
   console.log("getting phrases");
-  base("Table 1")
+  base("phrases")
     .select({
       view: "Grid view"
     })
@@ -139,6 +139,7 @@ app.get(`${baseApi}/phrases`, (req, res) => {
       (records, fetchNextPage) => {
         records.forEach(function(record) {
           const phrase = record.get("phrase");
+          console.log("phrase: ", phrase);
           if (phrase) {
             phrases = phrases.concat(phrase);
           }
@@ -150,6 +151,7 @@ app.get(`${baseApi}/phrases`, (req, res) => {
           console.error(err);
           return;
         }
+        res.status(200).send({ phrases });
         io.sockets.emit("loading done", phrases);
       }
     );
