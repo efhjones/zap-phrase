@@ -1,5 +1,5 @@
 const express = require("express");
-const Airtable = require("Airtable");
+const Airtable = require("airtable");
 const { AIRTABLE_KEY, AIRTABLE_BASE } = require("../../../constants.js");
 
 const router = express.Router();
