@@ -2,6 +2,9 @@
   "name": "zap-phrase",
   "version": "0.1.0",
   "private": true,
+  "engines": {
+    "node": "10.14.1"
+  },
   "dependencies": {
     "airtable": "^0.5.8",
     "concurrently": "^4.1.0",
