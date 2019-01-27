@@ -1,7 +1,15 @@
 const express = require("express");
 const http = require("http");
 const socketIO = require("socket.io");
+var Airtable = require("airtable");
+require("dotenv").config();
+
 const { sortBy } = require("lodash");
+
+var base = new Airtable({ apiKey: process.env.AIRTABLE_KEY }).base(
+  process.env.AIRTABLE_BASE
+);
+
 // our localhost port
 const port = 5000;
 
@@ -121,13 +129,28 @@ server.listen(port, () => console.log(`Listening on port ${port}`));
 const baseApi = "/api";
 
 app.get(`${baseApi}/phrases`, (req, res) => {
-  res.send({
-    phrases: [
-      "A blessing in disguise",
-      "A dime a dozen",
-      "Better late than never",
-      "Beat around the bush"
-    ]
-    // phrases: []
-  });
+  let phrases = [];
+  console.log("getting phrases");
+  base("Table 1")
+    .select({
+      view: "Grid view"
+    })
+    .eachPage(
+      (records, fetchNextPage) => {
+        records.forEach(function(record) {
+          const phrase = record.get("phrase");
+          if (phrase) {
+            phrases = phrases.concat(phrase);
+          }
+        });
+        fetchNextPage();
+      },
+      err => {
+        if (err) {
+          console.error(err);
+          return;
+        }
+        io.sockets.emit("loading done", phrases);
+      }
+    );
 });

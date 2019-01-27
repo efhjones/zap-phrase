@@ -1,5 +1,5 @@
-import _ from "lodash";
 import React, { Component } from "react";
+import { shuffle, isEmpty } from "lodash";
 
 import Clock from "./Clock";
 import Winner from "./Winner";
@@ -17,10 +17,10 @@ import "./styles.css";
 class Game extends Component {
   constructor(props) {
     super(props);
+    const shuffledPhrases = shuffle(props.phrases);
     this.state = {
-      phrases: props.phrases,
-      remainingPhrases: null,
-      currentPhrase: null,
+      remainingPhrases: shuffledPhrases,
+      currentPhrase: shuffledPhrases[0],
       endpoint: "http://localhost:5000",
       winner: null
     };
@@ -34,51 +34,15 @@ class Game extends Component {
     });
   }
 
-  componentDidMount() {
-    this.loadPhrases();
-  }
-
   componentDidUpdate(prevProps, prevState) {
-    if (
-      _.isEmpty(prevState.remainingPhrases) &&
-      !_.isEmpty(this.state.phrases)
-    ) {
-      const shuffledPhrases = _.shuffle(this.state.phrases);
+    if (isEmpty(prevState.remainingPhrases) && !isEmpty(this.props.phrases)) {
+      const shuffledPhrases = shuffle(this.props.phrases);
       this.setState({
         remainingPhrases: shuffledPhrases,
         currentPhrase: shuffledPhrases[0]
       });
     }
   }
-
-  getData = async dataType => {
-    const response = await fetch(`/api/${dataType}`);
-    const body = await response.json();
-
-    if (response.status !== 200) {
-      throw Error(body.message);
-    }
-    return body;
-  };
-
-  loadPhrases = () => {
-    this.getData("phrases")
-      .then(res => {
-        const shuffledPhrases = _.shuffle(res.phrases);
-        this.setState(
-          {
-            phrases: res.phrases,
-            remainingPhrases: shuffledPhrases,
-            currentPhrase: shuffledPhrases[0]
-          },
-          () => {
-            this.logState("phrases loaded: ");
-            this.props.socket.emit("set next phrase", this.state.currentPhrase);
-          }
-        );
-      })
-      .catch(err => console.log(err));
-  };
 
   logState = message => {
     console.log(message + JSON.stringify(this.state));
@@ -105,7 +69,6 @@ class Game extends Component {
 
   render() {
     const { currentPlayer, name } = this.props;
-
     return this.state.winner ? (
       <Winner winner={this.state.winner} startNewGame={this.startNewGame} />
     ) : (

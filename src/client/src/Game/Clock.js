@@ -1,19 +1,20 @@
 // @flow
 import React, { Component } from "react";
 
+const DEFAULT_CLOCK_TIME = "3:00";
+
 class Clock extends Component {
   constructor(props) {
     super(props);
     this.state = {
-      team1: "0:10",
-      team2: "0:10",
+      team1: DEFAULT_CLOCK_TIME,
+      team2: DEFAULT_CLOCK_TIME,
       activeTeam: "team1",
       isCounting: false,
       hasReset: false
     };
 
     this.props.socket.on("clock started", () => {
-      debugger;
       this.setState({
         isCounting: true,
         hasReset: false
@@ -34,8 +35,8 @@ class Clock extends Component {
     this.props.socket.on("clock reset", () => {
       this.setState({ isCounting: false, hasReset: true });
       this.setState({
-        team1: "3:00",
-        team2: "3:00"
+        team1: DEFAULT_CLOCK_TIME,
+        team2: DEFAULT_CLOCK_TIME
       });
       clearTimeout(this.team1Timeout);
       clearTimeout(this.team2Timeout);
