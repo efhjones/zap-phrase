@@ -6,6 +6,7 @@
     "node": "10.14.1"
   },
   "dependencies": {
+    "airtable": "^0.5.8",
     "concurrently": "^4.1.0",
     "dotenv": "^6.2.0",
     "lodash": "^4.17.11",
