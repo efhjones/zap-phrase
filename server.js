@@ -1,14 +1,11 @@
 const express = require("express");
 const http = require("http");
+const api = require("./app/api");
 const socketIO = require("socket.io");
-var Airtable = require("airtable");
+const { sortBy } = require("lodash");
 require("dotenv").config();
 
-const { sortBy } = require("lodash");
-
-var base = new Airtable({ apiKey: process.env.AIRTABLE_KEY }).base(
-  process.env.AIRTABLE_BASE
-);
+const handlers = require("./socket/handlers.js");
 
 // our localhost port
 const port = 5000;
@@ -25,12 +22,12 @@ let teams = [{ id: 1, players: [] }, { id: 2, players: [] }];
 let currentPlayer = null;
 let currentGame = null;
 
-io.on("connection", socket => {
+io.on(handlers.CONNECTION, socket => {
   console.log("User connected");
 
-  socket.emit("connection detected", teams);
+  socket.emit(handlers.CONNECTION_DETECTED, teams);
 
-  socket.on("add player", name => {
+  socket.on(handlers.ADD_PLAYER, name => {
     const teamWithFewerPlayers = sortBy(teams, team => {
       return team.players.length;
     })[0];
@@ -50,15 +47,15 @@ io.on("connection", socket => {
       }
       return team;
     });
-    socket.broadcast.emit("player added", teams);
-    socket.emit("player added", teams);
+    socket.broadcast.emit(handlers.PLAYER_ADDED, teams);
+    socket.emit(handlers.PLAYER_ADDED, teams);
   });
 
-  socket.on("join game", name => {
-    socket.emit("game joined", name);
+  socket.on(handlers.JOIN_GAME, name => {
+    socket.emit(handlers.GAME_JOINED, name);
   });
 
-  socket.on("start game", game => {
+  socket.on(handlers.START_GAME, game => {
     currentGame = { id: socket.id };
     const [team1, team2] = teams;
     const team1Players = team1.players.slice();
@@ -76,81 +73,58 @@ io.on("connection", socket => {
         return lineup.concat(playerToAdd);
       }
     }, []);
-    io.sockets.emit("game started", { game: currentGame, playerLineup });
+    io.sockets.emit(handlers.GAME_STARTED, { game: currentGame, playerLineup });
   });
 
-  socket.on("start clock", () => {
-    socket.emit("clock started");
+  socket.on(handlers.START_CLOCK, () => {
+    socket.emit(handlers.CLOCK_STARTED);
   });
 
-  socket.on("pause clock", () => {
-    io.sockets.emit("clock paused");
+  socket.on(handlers.PAUSE_CLOCK, () => {
+    io.sockets.emit(handlers.CLOCK_PAUSED);
   });
 
-  socket.on("resume clock", () => {
-    io.sockets.emit("clock started");
+  socket.on(handlers.RESUME_CLOCK, () => {
+    io.sockets.emit(handlers.CLOCK_STARTED);
   });
 
-  socket.on("reset clock", () => {
-    io.sockets.emit("clock reset");
+  socket.on(handlers.RESET_CLOCK, () => {
+    io.sockets.emit(handlers.CLOCK_RESET);
   });
 
-  socket.on("set next player", player => {
+  socket.on(handlers.CHANGE_PLAYER, player => {
     currentPlayer = player;
-    io.sockets.emit("player changed", currentPlayer);
+    io.sockets.emit(handlers.PLAYER_CHANGED, currentPlayer);
   });
 
-  socket.on("set next phrase", phrase => {
-    io.sockets.emit("phrase changed", phrase);
+  socket.on(handlers.CHANGE_PHRASE, phrase => {
+    io.sockets.emit(handlers.PHRASE_CHANGED, phrase);
   });
 
-  socket.on("stop clocks", () => {
-    io.sockets.emit("clocks stopped");
+  socket.on(handlers.STOP_CLOCK, () => {
+    io.sockets.emit(handlers.CLOCK_STOPPED);
   });
 
-  socket.on("declare winner", winner => {
-    io.sockets.emit("winner declared", winner);
+  socket.on(handlers.DECLARE_WINNER, winner => {
+    io.sockets.emit(handlers.WINNER_DECLARED, winner);
   });
 
-  socket.on("start new game", () => {
+  socket.on(handlers.START_NEW_GAME, () => {
     teams = [{ id: 1, players: [] }, { id: 2, players: [] }];
     currentGame = null;
     currentPlayer = null;
-    io.sockets.emit("new game started", { teams, currentGame, currentPlayer });
+    io.sockets.emit(handlers.NEW_GAME_STARTED, {
+      teams,
+      currentGame,
+      currentPlayer
+    });
   });
 
-  socket.on("disconnect", () => {
+  socket.on(handlers.DISCONNECT, () => {
     console.log("user disconnected");
   });
 });
 
+app.use("/api/", api);
+
 server.listen(port, () => console.log(`Listening on port ${port}`));
-
-const baseApi = "/api";
-
-app.get(`${baseApi}/phrases`, (req, res) => {
-  let phrases = [];
-  console.log("getting phrases");
-  base("Table 1")
-    .select({
-      view: "Grid view"
-    })
-    .eachPage(
-      (records, fetchNextPage) => {
-        records.forEach(function(record) {
-          const phrase = record.get("phrase");
-          if (phrase) {
-            phrases = phrases.concat(phrase);
-          }
-        });
-        fetchNextPage();
-      },
-      err => {
-        if (err) {
-          console.error(err);
-          return;
-        }
-        io.sockets.emit("loading done", phrases);
-      }
-    );
-});

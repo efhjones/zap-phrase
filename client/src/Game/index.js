@@ -21,7 +21,6 @@ class Game extends Component {
     this.state = {
       remainingPhrases: shuffledPhrases,
       currentPhrase: shuffledPhrases[0],
-      endpoint: "http://localhost:5000",
       winner: null
     };
 
@@ -51,7 +50,7 @@ class Game extends Component {
   setNextPlayer = () => {
     const { playerLineup, currentPlayer } = this.props;
     const nextPlayer = getNextPlayer(playerLineup, currentPlayer);
-    this.props.socket.emit("set next player", nextPlayer);
+    this.props.socket.emit("change player", nextPlayer);
   };
 
   setNextPhrase = () => {
@@ -60,7 +59,7 @@ class Game extends Component {
       remainingPhrases.shift();
     }
     const nextPhrase = remainingPhrases.shift();
-    this.props.socket.emit("set next phrase", nextPhrase);
+    this.props.socket.emit("change phrase", nextPhrase);
   };
 
   startNewGame = () => {
