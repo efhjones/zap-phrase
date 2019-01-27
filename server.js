@@ -16,7 +16,7 @@ const server = http.createServer(app);
 app.set("port", process.env.PORT || 5000);
 
 // Express only serves static assets in production
-app.use(express.static(path.join(__dirname, "client/build")));
+app.use(express.static(path.join(__dirname, "momandpop/build")));
 if (process.env.NODE_ENV === "production") {
 }
 
@@ -128,6 +128,10 @@ io.on(handlers.CONNECTION, socket => {
   socket.on(handlers.DISCONNECT, () => {
     console.log("user disconnected");
   });
+});
+
+app.get("*", (req, res) => {
+  res.sendFile(path.join(__dirname + "/client/build/index.html"));
 });
 
 app.use("/api/", api);
