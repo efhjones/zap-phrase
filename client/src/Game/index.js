@@ -21,7 +21,6 @@ class Game extends Component {
     this.state = {
       remainingPhrases: shuffledPhrases,
       currentPhrase: shuffledPhrases[0],
-      endpoint: "http://localhost:5000",
       winner: null
     };
 
@@ -78,7 +77,6 @@ class Game extends Component {
           <span className="player-heading">Current Player:</span>
           <span className="player-name">{currentPlayer.name}</span>
         </section>
-        {this.state.currentPhrase}
         {currentPlayer.name === name && (
           <div>
             <section className="vertical-section">
