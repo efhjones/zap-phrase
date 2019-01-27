@@ -16,8 +16,8 @@ const server = http.createServer(app);
 app.set("port", process.env.PORT || 5000);
 
 // Express only serves static assets in production
-app.use(express.static(path.join(__dirname, "client/build")));
 if (process.env.NODE_ENV === "production") {
+  app.use(express.static(path.join(__dirname, "client/build")));
 }
 
 // This creates our socket using the instance of the server
