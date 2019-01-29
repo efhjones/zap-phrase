@@ -106,7 +106,6 @@ class App extends Component {
 
   joinGame = name => {
     this.socket.emit("join game", name);
-    this.socket.emit("add player", name);
   };
 
   logState = label => {
