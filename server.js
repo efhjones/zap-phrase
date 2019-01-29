@@ -10,18 +10,14 @@ const api = require("./app/api");
 const handlers = require("./socket/handlers.js");
 
 const app = express();
-
-// our server instance
 const server = http.createServer(app);
 
 app.set("port", process.env.PORT || 5000);
 
-// Express only serves static assets in production
 if (process.env.NODE_ENV === "production") {
   app.use(express.static(path.join(__dirname, "client/build")));
 }
 
-// This creates our socket using the instance of the server
 const io = socketIO(server);
 
 new Game(io);
