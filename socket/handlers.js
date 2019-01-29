@@ -1,6 +1,5 @@
 module.exports = {
   // players
-  ADD_PLAYER: "add player",
   PLAYER_ADDED: "player added",
 
   CHANGE_PLAYER: "change player",
