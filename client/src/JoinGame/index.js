@@ -36,6 +36,9 @@ class JoinGame extends Component {
         <div className="current-players">
           <Teams teams={teams} name={name} />
         </div>
+        <div>
+          Invite others to your game with this link: {window.location.href}
+        </div>
         {!this.props.name && (
           <form className="vertical-section">
             <label className="name-label vertical-section">

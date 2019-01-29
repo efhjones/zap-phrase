@@ -12,16 +12,16 @@ class App extends Component {
   constructor() {
     super();
     this.state = {
-      endpoint: window.location.origin,
       name: null,
       teams: [],
       currentPlayer: null,
       currentGame: null,
       phrases: [],
-      isLoading: false
+      isLoading: false,
+      gameId: null
     };
 
-    this.socket = socketIOClient(this.state.endpoint);
+    this.socket = socketIOClient(window.location.origin);
 
     this.socket.on("phrase changed", phrase => {
       this.setState({ currentPhrase: phrase });
@@ -80,28 +80,30 @@ class App extends Component {
 
   componentDidMount() {
     this.socket.emit("new connection");
-    if (!this.state.isLoading) {
-      this.loadPhrases();
+    const maybeGameId = window.location.pathname.replace("/", "");
+    if (!!maybeGameId) {
+      this.getGame(maybeGameId).then(game => {
+        this.setState({
+          teams: game.teams,
+          phrases: game.phrases,
+          gameId: game.id
+        });
+      });
     }
   }
 
-  getData = async dataType => {
-    console.log("getting phrases");
-    const response = await fetch(`/api/${dataType}`);
+  getGame = async gameId => {
+    const response = await fetch(`/${gameId}`);
     const body = await response.json();
-
     if (response.status !== 200) {
       throw Error(body.message);
     }
-    return body;
-  };
-
-  loadPhrases = () => {
-    this.getData("phrases")
-      .then(({ phrases }) => {
-        this.setState({ phrases });
-      })
-      .catch(err => console.error(err));
+    const { id, teams, phrases } = body.game;
+    return {
+      id,
+      teams: JSON.parse(teams),
+      phrases: JSON.parse(phrases)
+    };
   };
 
   joinGame = name => {
