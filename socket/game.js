@@ -28,7 +28,7 @@ class Game {
       });
 
       socket.on(handlers.START_NEW_GAME, () => {
-        this.onStartNewGame(null, newGame => {
+        this.onStartNewGame(null, ({ newGame }) => {
           io.sockets.emit(handlers.NEW_GAME_STARTED, newGame);
         });
       });
@@ -115,9 +115,11 @@ class Game {
     this.currentGame = null;
     this.currentPlayer = null;
     done({
-      teams: this.teams,
-      currentGame: this.currentGame,
-      currentPlayer: this.currentPlayer
+      newGame: {
+        teams: this.teams,
+        currentGame: this.currentGame,
+        currentPlayer: this.currentPlayer
+      }
     });
   }
 }
