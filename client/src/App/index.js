@@ -81,29 +81,39 @@ class App extends Component {
   componentDidMount() {
     this.socket.emit("new connection");
     const maybeGameId = window.location.pathname.replace("/", "");
-    if (!!maybeGameId) {
-      this.getGame(maybeGameId).then(game => {
-        this.setState({
-          teams: game.teams,
-          phrases: game.phrases,
-          gameId: game.id
-        });
-      });
-    }
+    this.getGame(maybeGameId);
   }
 
   getGame = async gameId => {
-    const response = await fetch(`/${gameId}`);
-    const body = await response.json();
-    if (response.status !== 200) {
-      throw Error(body.message);
+    if (!gameId) {
+      this.setState({
+        isLoading: true
+      });
+      fetch(`/api/game/`)
+        .then(res => res.json())
+        .then(({ gameCode }) => {
+          window.location.pathname = `${gameCode}`;
+          this.setState({ isLoading: false });
+        })
+        .catch(err => {
+          console.error(
+            "Aww man. I ran into an error and haven't implemented proper error handling yet. Oh well, here it is: ",
+            err
+          );
+        });
+    } else {
+      fetch(`/api/game/${gameId}`)
+        .then(res => res.json())
+        .then(({ game }) => {
+          const phrases = JSON.parse(game.phrases);
+          const teams = JSON.parse(game.teams);
+          this.setState({
+            gameId: game.id,
+            phrases,
+            teams
+          });
+        });
     }
-    const { id, teams, phrases } = body.game;
-    return {
-      id,
-      teams: JSON.parse(teams),
-      phrases: JSON.parse(phrases)
-    };
   };
 
   joinGame = name => {
