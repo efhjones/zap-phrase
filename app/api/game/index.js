@@ -31,7 +31,6 @@ app.get("/", async (req, res) => {
   const gameCode = createGameId();
   createGame(gameCode, phrases, (err, record) => {
     if (err) {
-      console.error(err);
       res.status(400).send({ msg: err });
     }
     res.status(200).send({ gameCode });
@@ -54,16 +53,11 @@ app.get("/:code", (req, res) => {
           res.status(200).send({ game: record.fields });
         } else {
           const redirectUrl = getBaseUrl(req);
-          console.log(
-            "in code route but didnt find route, so redirecting to ",
-            redirectUrl
-          );
           res.redirect(redirectUrl);
         }
       },
       err => {
         if (err) {
-          console.log("get error: ", err);
           res.status(400).send({ msg: err });
         }
       }
