@@ -39,13 +39,3 @@ app.use("/api", api);
 server.listen(app.get("port"), () =>
   console.log(`Listening on port ${app.get("port")}`)
 );
-
-// when a new user connects
-// check if there is a code in the url
-// if there is, take code
-// make request from DB
-// if no new game, create it
-// else return game
-// return game to socket
-
-// make a code for their game
