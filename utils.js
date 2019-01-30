@@ -4,7 +4,7 @@ const getRandomInt = (min, max) => {
   return Math.floor(Math.random() * (max - min)) + min;
 };
 
-const createRoomId = () => {
+const createGameId = () => {
   const rand = getRandomInt(100000, 999999);
   console.log("int: ", rand);
   return `${rand}`
@@ -16,5 +16,5 @@ const createRoomId = () => {
 };
 
 module.exports = {
-  createRoomId
+  createGameId
 };
