@@ -6,10 +6,8 @@ require("dotenv").config();
 
 const Game = require("./socket/game.js");
 const Clock = require("./socket/clock.js");
-const Entry = require("./socket/entry.js");
 
 const api = require("./app/api");
-const router = require("./app/router");
 
 const handlers = require("./socket/handlers.js");
 
@@ -24,7 +22,6 @@ if (process.env.NODE_ENV === "production") {
 
 const io = socketIO(server);
 
-new Entry(io);
 new Game(io);
 new Clock(io);
 
@@ -38,8 +35,6 @@ io.on(handlers.CONNECTION, socket => {
 app.set("trust proxy", "loopback");
 
 app.use("/api", api);
-
-app.use("/", router);
 
 server.listen(app.get("port"), () =>
   console.log(`Listening on port ${app.get("port")}`)
