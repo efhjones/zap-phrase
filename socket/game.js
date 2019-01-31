@@ -50,33 +50,6 @@ class Game {
     });
   }
 
-  onAddPlayer({ name, socket }, done) {
-    const teamWithFewerPlayers = sortBy(this.teams, team => {
-      return team.players.length;
-    })[0];
-
-    const assignedTeam = teamWithFewerPlayers;
-    const player = {
-      id: socket.id,
-      teamId: assignedTeam.id,
-      name
-    };
-    const newTeam = {
-      ...assignedTeam,
-      players: [...assignedTeam.players, player]
-    };
-    this.teams = this.teams.map(team => {
-      if (team.id === assignedTeam.id) {
-        return newTeam;
-      }
-      return team;
-    });
-    done({
-      teams: this.teams,
-      name
-    });
-  }
-
   onChangePlayer({ player }, done) {
     this.currentPlayer = player;
     console.log("player in change player: ", player);
