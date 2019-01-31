@@ -24,10 +24,6 @@ class JoinGame extends Component {
     });
   };
 
-  startGame = () => {
-    this.props.socket.emit("start game", "game1");
-  };
-
   render() {
     const { teams, name } = this.props;
     const canPlay = hasSufficientNumbersToPlay(teams);
@@ -64,7 +60,7 @@ class JoinGame extends Component {
           <button
             disabled={!canPlay}
             className="button start"
-            onClick={this.startGame}
+            onClick={this.props.startGame}
           >
             {canPlay ? "start" : "need moar players"}
           </button>

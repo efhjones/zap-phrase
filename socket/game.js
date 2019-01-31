@@ -18,8 +18,8 @@ class Game {
         });
       });
 
-      socket.on(handlers.START_GAME, () => {
-        this.onStartGame({ socket }, ({ game, playerLineup }) => {
+      socket.on(handlers.START_GAME, game => {
+        this.onStartGame({ socket, game }, ({ game, playerLineup }) => {
           io.sockets.emit(handlers.GAME_STARTED, {
             game,
             playerLineup
@@ -85,9 +85,9 @@ class Game {
     });
   }
 
-  onStartGame({ socket }, done) {
+  onStartGame({ socket, game }, done) {
     const { teams } = this;
-    this.game = { id: socket.id };
+    this.game = { id: socket.id, ...game };
     const [team1, team2] = teams;
     const team1Players = team1.players.slice();
     const team2Players = team2.players.slice();

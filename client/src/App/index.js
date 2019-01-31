@@ -15,10 +15,10 @@ class App extends Component {
       name: null,
       teams: [],
       currentPlayer: null,
-      currentGame: null,
       phrases: [],
       isLoading: false,
-      gameId: null
+      gameId: null,
+      isActive: false
     };
 
     this.socket = socketIOClient(window.location.origin);
@@ -36,15 +36,17 @@ class App extends Component {
     });
 
     this.socket.on("game started", ({ game, playerLineup }) => {
-      const nextPlayer = getNextPlayer(playerLineup);
-      const nextPlayerTeamId = nextPlayer.teamId;
-      this.setState({
-        hasStartedGame: true,
-        currentGame: game,
-        playerLineup,
-        currentPlayer: nextPlayer
-      });
-      this.socket.emit("start clock", { teamId: nextPlayerTeamId });
+      if (game.id === this.state.gameId) {
+        const nextPlayer = getNextPlayer(playerLineup);
+        const nextPlayerTeamId = nextPlayer.teamId;
+        this.setState({
+          isActive: true,
+          currentGame: game.id,
+          playerLineup,
+          currentPlayer: nextPlayer
+        });
+        this.socket.emit("start clock", { teamId: nextPlayerTeamId });
+      }
     });
 
     this.socket.on(
@@ -76,6 +78,9 @@ class App extends Component {
         teams
       });
     });
+    this.socket.on("reconnect", () => {
+      console.log("someone reconnected");
+    });
   }
 
   componentDidMount() {
@@ -84,7 +89,7 @@ class App extends Component {
     this.getGame(maybeGameId);
   }
 
-  getGame = async gameId => {
+  getGame = gameId => {
     if (!gameId) {
       this.setState({
         isLoading: true
@@ -110,7 +115,8 @@ class App extends Component {
           this.setState({
             gameId: game.id,
             phrases,
-            teams
+            teams,
+            isActive: game.isActive
           });
         });
     }
@@ -120,6 +126,21 @@ class App extends Component {
     this.socket.emit("join game", name);
   };
 
+  startGame = () => {
+    console.log(this.state.gameId);
+    fetch("/api/game/startGame", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ gameId: this.state.gameId })
+    })
+      .then(res => res.json())
+      .then(({ game }) => {
+        this.socket.emit("start game", game);
+      });
+  };
+
   logState = label => {
     console.log(`${label}: ` + JSON.stringify(this.state));
   };
@@ -127,22 +148,23 @@ class App extends Component {
   render() {
     const {
       teams,
-      currentGame,
       name,
       currentPlayer,
       playerLineup,
-      isLoading
+      isLoading,
+      isActive
     } = this.state;
     return isLoading ? (
       <div className="container">Loading...</div>
     ) : (
       <main className="container">
-        {!currentGame ? (
+        {!isActive ? (
           <JoinGame
             teams={teams}
             joinGame={this.joinGame}
             name={name}
             socket={this.socket}
+            startGame={this.startGame}
           />
         ) : (
           <Game
