@@ -17,7 +17,6 @@ module.exports = {
   PHRASE_CHANGED: "phrase changed",
 
   // games
-  JOIN_GAME: "join game",
   GAME_JOINED: "game joined",
 
   START_GAME: "start game",
