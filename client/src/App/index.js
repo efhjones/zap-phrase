@@ -123,11 +123,27 @@ class App extends Component {
   };
 
   joinGame = name => {
-    this.socket.emit("join game", name);
+    fetch("/api/game/addPlayer", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ gameId: this.state.gameId, name })
+    })
+      .then(res => res.json())
+      .then(({ game }) => {
+        const parsedTeams = JSON.parse(game.teams);
+        this.setState({
+          gameId: game.id,
+          name,
+          teams: parsedTeams,
+          isActive: game.isActive
+        });
+        this.socket.emit("player added", { teams: parsedTeams });
+      });
   };
 
   startGame = () => {
-    console.log(this.state.gameId);
     fetch("/api/game/startGame", {
       method: "POST",
       headers: {

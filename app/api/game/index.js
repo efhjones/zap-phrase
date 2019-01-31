@@ -1,7 +1,7 @@
 const fetch = require("node-fetch");
 const app = require("express")();
 const Airtable = require("airtable");
-const { createGameId } = require("../../../utils.js");
+const { createGameId, addPlayerToTeam } = require("../../../utils.js");
 
 const { AIRTABLE_KEY, AIRTABLE_BASE } = require("../../../constants.js");
 
@@ -106,7 +106,32 @@ app.post("/startGame", (req, res) => {
 });
 
 app.post("/addPlayer", (req, res) => {
-  console.log("adding player, yo!", req);
+  findGame(req.body.gameId, ({ record, error }) => {
+    if (error) {
+      res.status(404).send({ msg: "game not found", error });
+    } else {
+      const newTeams = addPlayerToTeam({
+        teams: JSON.parse(record.fields.teams),
+        name: req.body.name
+      });
+      updateGame(
+        record,
+        {
+          teams: JSON.stringify(newTeams)
+        },
+        result => {
+          if (result.error) {
+            res.status(409).send({
+              msg: "We ran into an error updatin' the game :'(",
+              error: result.error
+            });
+          } else {
+            res.status(202).send({ game: result.record.fields });
+          }
+        }
+      );
+    }
+  });
 });
 
 module.exports = app;
