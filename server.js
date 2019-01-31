@@ -33,7 +33,7 @@ io.on(handlers.CONNECTION, socket => {
 });
 
 app.set("trust proxy", "loopback");
-
+app.use(express.json());
 app.use("/api", api);
 
 server.listen(app.get("port"), () =>
