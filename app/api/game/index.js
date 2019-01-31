@@ -36,7 +36,6 @@ const updateGame = (record, data, done) => {
 };
 
 const findGame = (gameCode, done) => {
-  console.log("looking for game: ", gameCode);
   base("games")
     .select({
       view: "Grid view",
@@ -82,13 +81,10 @@ app.get("/:code", (req, res) => {
 
 app.post("/startGame", (req, res) => {
   const { gameId } = req.body;
-  console.log("received request to start game: ", gameId);
   findGame(gameId, ({ record, error }) => {
     if (error) {
-      console.log("ran into an error: ", error);
       res.status(404).send({ msg: "game not found", error });
     } else {
-      console.log("found the game: ", record.fields);
       updateGame(
         record,
         {
@@ -101,11 +97,6 @@ app.post("/startGame", (req, res) => {
               error: result.error
             });
           } else {
-            console.log(
-              "updated successfully, ",
-              record.fields.id,
-              record.fields.isActive
-            );
             res.status(202).send({ game: result.record.fields });
           }
         }
