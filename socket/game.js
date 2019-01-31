@@ -1,21 +1,16 @@
 const handlers = require("./handlers.js");
 const { sortBy } = require("lodash");
 
-const TEAMS_DEFAULT = [{ id: 1, players: [] }, { id: 2, players: [] }];
 class Game {
   constructor(io) {
     this.game = null;
-    this.teams = TEAMS_DEFAULT;
     this.currentPlayer = null;
 
     io.on("connection", socket => {
       socket.emit(handlers.CONNECTION_DETECTED, this.teams);
 
-      socket.on(handlers.JOIN_GAME, name => {
-        this.onAddPlayer({ name, socket }, ({ teams, name }) => {
-          io.sockets.emit(handlers.PLAYER_ADDED, teams);
-          socket.emit(handlers.GAME_JOINED, name);
-        });
+      socket.on(handlers.PLAYER_ADDED, ({ teams }) => {
+        socket.broadcast.emit(handlers.PLAYER_ADDED, teams);
       });
 
       socket.on(handlers.START_GAME, game => {
