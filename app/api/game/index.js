@@ -69,8 +69,8 @@ app.get("/", async (req, res) => {
 app.get("/:code", (req, res) => {
   const gameCode = req.params.code;
   findGame(gameCode, result => {
-    if (result.error) {
-      res.status(400).send({ msg: result.error });
+    if (result.error || !result.record) {
+      res.status(result.error ? 400 : 404).send({ msg: result.error });
     } else if (result.record) {
       res.status(200).send({ game: result.record.fields });
     } else {

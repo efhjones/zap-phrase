@@ -54,7 +54,7 @@ class App extends Component {
       ({ teams, currentGame, currentPlayer }) => {
         this.setState({
           name: null,
-          teams,
+          teams: "new game started",
           currentGame,
           currentPlayer
         });
@@ -68,14 +68,14 @@ class App extends Component {
     });
 
     this.socket.on("player disconnected", ({ teams }) => {
-      this.setState(currentState => {
-        return { teams };
+      this.setState({
+        teams: "player disconnected"
       });
     });
 
     this.socket.on("connection detected", teams => {
       this.setState({
-        teams
+        teams: "connection detected"
       });
     });
     this.socket.on("reconnect", () => {
@@ -109,15 +109,20 @@ class App extends Component {
     } else {
       fetch(`/api/game/${gameId}`)
         .then(res => res.json())
-        .then(({ game }) => {
-          const phrases = JSON.parse(game.phrases);
-          const teams = JSON.parse(game.teams);
-          this.setState({
-            gameId: game.id,
-            phrases,
-            teams,
-            isActive: game.isActive
-          });
+        .then(result => {
+          if (result.game) {
+            const { game } = result;
+            const phrases = JSON.parse(game.phrases);
+            const teams = JSON.parse(game.teams);
+            this.setState({
+              gameId: game.id,
+              phrases,
+              teams,
+              isActive: game.isActive
+            });
+          } else {
+            window.location.pathname = "/";
+          }
         });
     }
   };
