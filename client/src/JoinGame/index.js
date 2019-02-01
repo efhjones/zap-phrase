@@ -1,7 +1,7 @@
 // @flow
 import React, { Component } from "react";
 import Teams from "./Teams.js";
-
+import AsyncButton from "../common/AsyncButton";
 import { hasSufficientNumbersToPlay } from "../utils/gameUtils";
 
 import "./styles.css";
@@ -46,14 +46,16 @@ class JoinGame extends Component {
                 onChange={this.updateName}
               />
             </label>
-            <button
+            <AsyncButton
               disabled={this.state.name.length === 0}
+              isLoading={this.props.isAddingPlayer}
               type="submit"
               onClick={this.joinGame}
               className="button start"
+              color="#97d320"
             >
               Join
-            </button>
+            </AsyncButton>
           </form>
         )}
         {!!this.props.name && (

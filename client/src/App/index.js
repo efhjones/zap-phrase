@@ -17,8 +17,9 @@ class App extends Component {
       currentPlayer: null,
       phrases: [],
       isLoading: false,
+      isAddingPlayer: false,
       gameId: null,
-      isActive: false
+      isActive: false,
     };
 
     this.socket = socketIOClient(window.location.origin);
@@ -123,6 +124,9 @@ class App extends Component {
   };
 
   joinGame = name => {
+    this.setState({
+      isAddingPlayer: true
+    })
     fetch("/api/game/addPlayer", {
       method: "POST",
       headers: {
@@ -137,7 +141,8 @@ class App extends Component {
           gameId: game.id,
           name,
           teams: parsedTeams,
-          isActive: game.isActive
+          isActive: game.isActive,
+          isAddingPlayer: false
         });
         this.socket.emit("player added", { teams: parsedTeams });
       });
@@ -168,7 +173,8 @@ class App extends Component {
       currentPlayer,
       playerLineup,
       isLoading,
-      isActive
+      isActive,
+      isAddingPlayer
     } = this.state;
     return isLoading ? (
       <div className="container">Loading...</div>
@@ -181,6 +187,7 @@ class App extends Component {
             name={name}
             socket={this.socket}
             startGame={this.startGame}
+            isAddingPlayer={isAddingPlayer}
           />
         ) : (
           <Game
