@@ -1,5 +1,4 @@
 const handlers = require("./handlers.js");
-const { sortBy } = require("lodash");
 
 class Game {
   constructor(io) {
@@ -7,7 +6,6 @@ class Game {
     this.currentPlayer = null;
 
     io.on("connection", socket => {
-      socket.emit(handlers.CONNECTION_DETECTED, this.teams);
 
       socket.on(handlers.PLAYER_ADDED, ({ teams }) => {
         socket.broadcast.emit(handlers.PLAYER_ADDED, teams);
@@ -79,7 +77,6 @@ class Game {
   }
 
   onStartNewGame(_, done) {
-    this.teams = TEAMS_DEFAULT;
     this.currentGame = null;
     this.currentPlayer = null;
     done({

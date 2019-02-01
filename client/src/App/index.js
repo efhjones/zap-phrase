@@ -73,11 +73,6 @@ class App extends Component {
       });
     });
 
-    this.socket.on("connection detected", teams => {
-      this.setState({
-        teams: "connection detected"
-      });
-    });
     this.socket.on("reconnect", () => {
       console.log("someone reconnected");
     });

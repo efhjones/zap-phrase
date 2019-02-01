@@ -10,7 +10,6 @@ module.exports = {
 
   CONNECTION: "connection",
   DISCONNECT: "disconnect",
-  CONNECTION_DETECTED: "connection detected",
 
   // phrases
   CHANGE_PHRASE: "change phrase",
