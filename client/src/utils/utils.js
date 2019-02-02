@@ -28,7 +28,7 @@ export const prepareGameForState = game => {
   };
 };
 
-const getAllPlayersInGame = game => {
+export const getAllPlayersInGame = game => {
   return game.teams.map(team => team.players);
 };
 
@@ -42,11 +42,9 @@ const existsInNames = (name, names) => {
 
 export const isExistingPlayer = (name, game) => {
   const isExistingPlayerInNames = partial(existsInNames, name);
-  const result = flowRight(
+  return flowRight(
     isExistingPlayerInNames,
     getNamesOfAllPlayers,
     getAllPlayersInGame
   )(game);
-  console.log("result: ", result);
-  return result;
 };
