@@ -5,6 +5,12 @@ import Game from "../Game";
 import JoinGame from "../JoinGame";
 
 import { getNextPlayer } from "../utils/gameUtils";
+import {
+  getLocalStorage,
+  setLocalStorage,
+  isExistingPlayer,
+  parseGame
+} from "../utils/utils.js";
 
 import "./styles.css";
 
@@ -94,6 +100,7 @@ class App extends Component {
         .then(res => res.json())
         .then(({ gameCode }) => {
           window.location.pathname = `${gameCode}`;
+          setLocalStorage("name", "");
           this.setState({ isLoading: false });
         })
         .catch(err => {
@@ -108,13 +115,18 @@ class App extends Component {
         .then(result => {
           if (result.game) {
             const { game } = result;
-            const phrases = JSON.parse(game.phrases);
-            const teams = JSON.parse(game.teams);
+            const parsedGame = parseGame(game);
+            const maybeUserName = getLocalStorage("name");
+            if (isExistingPlayer(maybeUserName, parsedGame)) {
+              this.setState({
+                name: maybeUserName
+              });
+            }
             this.setState({
               gameId: game.id,
-              phrases,
-              teams,
-              isActive: game.isActive
+              phrases: parsedGame.phrases,
+              teams: parsedGame.teams,
+              isActive: Boolean(game.isActive)
             });
           } else {
             window.location.pathname = "/";
@@ -125,8 +137,10 @@ class App extends Component {
 
   joinGame = name => {
     this.setState({
-      isAddingPlayer: true
-    })
+      isAddingPlayer: true,
+      name
+    });
+    setLocalStorage("name", name);
     fetch("/api/game/addPlayer", {
       method: "POST",
       headers: {
