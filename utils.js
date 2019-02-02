@@ -8,7 +8,6 @@ const getRandomInt = (min, max) => {
 
 const createGameId = () => {
   const rand = getRandomInt(100000, 999999);
-  console.log("int: ", rand);
   return `${rand}`
     .split("")
     .map(num => {
