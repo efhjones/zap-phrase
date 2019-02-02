@@ -9,7 +9,7 @@ import {
   getLocalStorage,
   setLocalStorage,
   isExistingPlayer,
-  parseGame
+  prepareGameForState
 } from "../utils/utils.js";
 
 import "./styles.css";
@@ -112,21 +112,21 @@ class App extends Component {
     } else {
       fetch(`/api/game/${gameId}`)
         .then(res => res.json())
-        .then(result => {
-          if (result.game) {
-            const { game } = result;
-            const parsedGame = parseGame(game);
+        .then(({ game }) => {
+          if (game) {
+            const preparedGame = prepareGameForState(game);
             const maybeUserName = getLocalStorage("name");
-            if (isExistingPlayer(maybeUserName, parsedGame)) {
+            if (isExistingPlayer(maybeUserName, preparedGame)) {
               this.setState({
                 name: maybeUserName
               });
             }
+            const { id, phrases, teams, isActive } = preparedGame;
             this.setState({
-              gameId: game.id,
-              phrases: parsedGame.phrases,
-              teams: parsedGame.teams,
-              isActive: Boolean(game.isActive)
+              gameId: id,
+              phrases,
+              teams,
+              isActive
             });
           } else {
             window.location.pathname = "/";
@@ -150,15 +150,18 @@ class App extends Component {
     })
       .then(res => res.json())
       .then(({ game }) => {
-        const parsedTeams = JSON.parse(game.teams);
+        const { teams, isActive, id } = prepareGameForState(game);
         this.setState({
-          gameId: game.id,
+          gameId: id,
           name,
-          teams: parsedTeams,
-          isActive: game.isActive,
+          teams,
+          isActive,
           isAddingPlayer: false
         });
-        this.socket.emit("player added", { teams: parsedTeams });
+        this.socket.emit("player added", {
+          gameId: game.id,
+          teams
+        });
       });
   };
 
@@ -172,7 +175,15 @@ class App extends Component {
     })
       .then(res => res.json())
       .then(({ game }) => {
-        this.socket.emit("start game", game);
+        const { teams, isActive, id } = prepareGameForState(game);
+        this.setState({
+          teams,
+          isActive
+        });
+        this.socket.emit("start game", {
+          gameId: id,
+          teams
+        });
       });
   };
 
