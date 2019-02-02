@@ -3,6 +3,7 @@ import socketIOClient from "socket.io-client";
 
 import Game from "../Game";
 import JoinGame from "../JoinGame";
+import Loading from "../common/Loading";
 
 import { getNextPlayer } from "../utils/gameUtils";
 import {
@@ -101,7 +102,6 @@ class App extends Component {
         .then(({ gameCode }) => {
           window.location.pathname = `${gameCode}`;
           setLocalStorage("name", "");
-          this.setState({ isLoading: false });
         })
         .catch(err => {
           console.error(
@@ -123,6 +123,7 @@ class App extends Component {
             }
             const { id, phrases, teams, isActive } = preparedGame;
             this.setState({
+              isLoading: false,
               gameId: id,
               phrases,
               teams,
@@ -201,8 +202,9 @@ class App extends Component {
       isActive,
       isAddingPlayer
     } = this.state;
+    console.log("rendering app: ", teams);
     return isLoading ? (
-      <div className="container">Loading...</div>
+      <Loading />
     ) : (
       <main className="container">
         {!isActive ? (
