@@ -1,7 +1,7 @@
 // @flow
 import React, { Component } from "react";
 import Teams from "./Teams.js";
-import AsyncButton from "../common/AsyncButton";
+import AsyncButton from "../common/Button/AsyncButton";
 import { hasSufficientNumbersToPlay } from "../utils/gameUtils";
 
 import "./styles.css";
@@ -25,7 +25,8 @@ class JoinGame extends Component {
   };
 
   render() {
-    const { teams, name } = this.props;
+    const { state, props } = this;
+    const { teams, name } = props;
     const canPlay = hasSufficientNumbersToPlay(teams);
     return (
       <div className="vertical-section">
@@ -35,37 +36,37 @@ class JoinGame extends Component {
         <div>
           Invite others to your game with this link: {window.location.href}
         </div>
-        {!this.props.name && (
+        {!props.name && (
           <form className="vertical-section">
             <label className="name-label vertical-section">
               What's your name, friend?
               <input
                 className="name-field"
                 type="text"
-                value={this.state.name}
+                value={state.name}
                 onChange={this.updateName}
               />
             </label>
             <AsyncButton
-              disabled={this.state.name.length === 0}
-              isLoading={this.props.isAddingPlayer}
+              disabled={state.name.length === 0 || props.isWaiting}
+              isLoading={props.isWaiting}
               type="submit"
               onClick={this.joinGame}
               className="button start"
-              color="#97d320"
             >
               Join
             </AsyncButton>
           </form>
         )}
-        {!!this.props.name && (
-          <button
-            disabled={!canPlay}
+        {Boolean(props.name) && (
+          <AsyncButton
+            isLoading={props.isWaiting}
+            disabled={!canPlay || props.isWaiting}
             className="button start"
-            onClick={this.props.startGame}
+            onClick={props.startGame}
           >
             {canPlay ? "start" : "need moar players"}
-          </button>
+          </AsyncButton>
         )}
       </div>
     );
