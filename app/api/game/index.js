@@ -80,8 +80,7 @@ app.get("/:code", (req, res) => {
 });
 
 app.post("/startGame", (req, res) => {
-  const { gameId } = req.body;
-  findGame(gameId, ({ record, error }) => {
+  findGame(req.body.gameId, ({ record, error }) => {
     if (error) {
       res.status(404).send({ msg: "game not found", error });
     } else {
