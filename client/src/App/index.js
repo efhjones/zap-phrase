@@ -25,9 +25,9 @@ class App extends Component {
       currentPlayer: null,
       phrases: [],
       isLoading: false,
-      isAddingPlayer: false,
+      isWaiting: false,
       gameId: null,
-      isActive: false,
+      isActive: false
     };
 
     this.socket = socketIOClient(window.location.origin);
