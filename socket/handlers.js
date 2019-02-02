@@ -20,6 +20,8 @@ module.exports = {
 
   START_GAME: "start game",
   GAME_STARTED: "game started",
+  STOP_GAME: "stop game",
+  GAME_STOPPED: "game stopped",
 
   START_NEW_GAME: "start new game",
   NEW_GAME_STARTED: "new game started",

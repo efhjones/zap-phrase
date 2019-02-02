@@ -6,18 +6,21 @@ class Game {
     this.currentPlayer = null;
 
     io.on("connection", socket => {
-
-      socket.on(handlers.PLAYER_ADDED, ({ teams }) => {
-        socket.broadcast.emit(handlers.PLAYER_ADDED, teams);
+      socket.on(handlers.PLAYER_ADDED, game => {
+        socket.broadcast.emit(handlers.PLAYER_ADDED, game);
       });
 
-      socket.on(handlers.START_GAME, game => {
-        this.onStartGame({ socket, game }, ({ game, playerLineup }) => {
+      socket.on("start game", game => {
+        this.getPlayerLineup({ game }, ({ game, playerLineup }) => {
           io.sockets.emit(handlers.GAME_STARTED, {
             game,
             playerLineup
           });
         });
+      });
+
+      socket.on(handlers.STOP_GAME, ({ game }) => {
+        socket.broadcast.emit(handlers.GAME_STOPPED, { game });
       });
 
       socket.on(handlers.START_NEW_GAME, () => {
@@ -28,32 +31,36 @@ class Game {
 
       socket.on(handlers.CHANGE_PLAYER, player => {
         this.onChangePlayer({ player }, ({ currentPlayer }) => {
-          console.log("done, current player: ", currentPlayer);
           io.sockets.emit(handlers.PLAYER_CHANGED, currentPlayer);
         });
       });
 
-      socket.on(handlers.CHANGE_PHRASE, phrase => {
-        io.sockets.emit(handlers.PHRASE_CHANGED, phrase);
+      socket.on(handlers.CHANGE_PHRASE, ({ nextPhrase, remainingPhrases }) => {
+        io.sockets.emit(handlers.PHRASE_CHANGED, {
+          nextPhrase,
+          remainingPhrases
+        });
       });
 
       socket.on(handlers.DECLARE_WINNER, winner => {
         io.sockets.emit(handlers.WINNER_DECLARED, winner);
+      });
+
+      socket.on("loading", ({ isLoading, gameId }) => {
+        io.sockets.emit("loading", { isLoading, gameId });
       });
     });
   }
 
   onChangePlayer({ player }, done) {
     this.currentPlayer = player;
-    console.log("player in change player: ", player);
     done({
       currentPlayer: this.currentPlayer
     });
   }
 
-  onStartGame({ socket, game }, done) {
-    const { teams } = this;
-    this.game = { id: socket.id, ...game };
+  getPlayerLineup({ game }, done) {
+    const { teams } = game;
     const [team1, team2] = teams;
     const team1Players = team1.players.slice();
     const team2Players = team2.players.slice();
@@ -71,7 +78,7 @@ class Game {
       }
     }, []);
     done({
-      game: this.game,
+      game,
       playerLineup
     });
   }
