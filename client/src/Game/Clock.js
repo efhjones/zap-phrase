@@ -22,8 +22,10 @@ class Clock extends Component {
       this.createNewTime(this.state.activeTeam);
     });
 
-    this.props.socket.on("player changed", () => {
-      this.switchClock();
+    this.props.socket.on("player changed", ({ gameId }) => {
+      if (gameId === this.props.gameId) {
+        this.switchClock();
+      }
     });
 
     this.props.socket.on("clock paused", () => {
@@ -38,17 +40,24 @@ class Clock extends Component {
         team1: DEFAULT_CLOCK_TIME,
         team2: DEFAULT_CLOCK_TIME
       });
-      clearTimeout(this.team1Timeout);
-      clearTimeout(this.team2Timeout);
+      this.clearAllTimeouts();
     });
 
     this.props.socket.on("clock stopped", () => {
-      clearTimeout(this.team1Timeout);
-      clearTimeout(this.team2Timeout);
-      this.team1Timeout = null;
-      this.team2Timeout = null;
+      this.clearAllTimeouts();
     });
   }
+
+  componentWillUnmount() {
+    this.clearAllTimeouts();
+  }
+
+  clearAllTimeouts = () => {
+    clearTimeout(this.team1Timeout);
+    clearTimeout(this.team2Timeout);
+    this.team1Timeout = null;
+    this.team2Timeout = null;
+  };
 
   switchClock = () => {
     const { activeTeam } = this.state;
