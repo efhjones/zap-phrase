@@ -175,7 +175,8 @@ app.post("/removePlayer", (req, res) => {
       updateGame(
         record,
         {
-          teams: JSON.stringify(newTeams)
+          teams: JSON.stringify(newTeams),
+          isActive: false
         },
         result => {
           if (result.error) {
