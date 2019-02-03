@@ -1,12 +1,10 @@
-const express = require("express");
+const app = require("express")();
 const Airtable = require("airtable");
 const { AIRTABLE_KEY, AIRTABLE_BASE } = require("../../../constants.js");
 
-const router = express.Router();
-
 const base = new Airtable({ apiKey: AIRTABLE_KEY }).base(AIRTABLE_BASE);
 
-router.get(`/`, (req, res) => {
+app.get("/", (req, res) => {
   let phrases = [];
   base("phrases")
     .select({
@@ -32,4 +30,4 @@ router.get(`/`, (req, res) => {
     );
 });
 
-module.exports = router;
+module.exports = app;

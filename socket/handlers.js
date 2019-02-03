@@ -1,7 +1,9 @@
 module.exports = {
+  LOADING: "loading",
   // players
   PLAYER_ADDED: "player added",
-
+  REMOVE_PLAYER: "remove player",
+  REMOVE_PLAYERS: "remove players",
   CHANGE_PLAYER: "change player",
   PLAYER_CHANGED: "player changed",
 
@@ -10,21 +12,22 @@ module.exports = {
 
   CONNECTION: "connection",
   DISCONNECT: "disconnect",
-  CONNECTION_DETECTED: "connection detected",
 
   // phrases
   CHANGE_PHRASE: "change phrase",
   PHRASE_CHANGED: "phrase changed",
 
   // games
-  JOIN_GAME: "join game",
   GAME_JOINED: "game joined",
 
   START_GAME: "start game",
   GAME_STARTED: "game started",
+  STOP_GAME: "stop game",
+  GAME_STOPPED: "game stopped",
 
-  START_NEW_GAME: "start new game",
-  NEW_GAME_STARTED: "new game started",
+  RELOAD_TEAMS: "reload teams",
+
+  UPDATE_SOCKET_IDS: "update socket ids",
 
   // clock
   START_CLOCK: "start clock",

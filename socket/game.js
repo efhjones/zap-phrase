@@ -1,25 +1,14 @@
 const handlers = require("./handlers.js");
-const { sortBy } = require("lodash");
 
-const TEAMS_DEFAULT = [{ id: 1, players: [] }, { id: 2, players: [] }];
 class Game {
   constructor(io) {
-    this.game = null;
-    this.teams = TEAMS_DEFAULT;
-    this.currentPlayer = null;
-
-    io.on("connection", socket => {
-      socket.emit(handlers.CONNECTION_DETECTED, this.teams);
-
-      socket.on(handlers.JOIN_GAME, name => {
-        this.onAddPlayer({ name, socket }, ({ teams, name }) => {
-          io.sockets.emit(handlers.PLAYER_ADDED, teams);
-          socket.emit(handlers.GAME_JOINED, name);
-        });
+    io.on(handlers.CONNECTION, socket => {
+      socket.on(handlers.PLAYER_ADDED, ({ gameId, teams }) => {
+        socket.broadcast.emit(handlers.PLAYER_ADDED, { gameId, teams });
       });
 
-      socket.on(handlers.START_GAME, () => {
-        this.onStartGame({ socket }, ({ game, playerLineup }) => {
+      socket.on(handlers.START_GAME, game => {
+        this.getPlayerLineup({ game }, ({ game, playerLineup }) => {
           io.sockets.emit(handlers.GAME_STARTED, {
             game,
             playerLineup
@@ -27,67 +16,78 @@ class Game {
         });
       });
 
-      socket.on(handlers.START_NEW_GAME, () => {
-        this.onStartNewGame(null, ({ newGame }) => {
-          io.sockets.emit(handlers.NEW_GAME_STARTED, newGame);
+      socket.on(handlers.STOP_GAME, ({ game }) => {
+        socket.broadcast.emit(handlers.GAME_STOPPED, { game });
+      });
+
+      socket.on(handlers.CHANGE_PLAYER, ({ gameId, nextPlayer }) => {
+        io.sockets.emit(handlers.PLAYER_CHANGED, {
+          gameId,
+          nextPlayer
         });
       });
 
-      socket.on(handlers.CHANGE_PLAYER, player => {
-        this.onChangePlayer({ player }, ({ currentPlayer }) => {
-          console.log("done, current player: ", currentPlayer);
-          io.sockets.emit(handlers.PLAYER_CHANGED, currentPlayer);
+      socket.on(
+        handlers.REMOVE_PLAYER,
+        ({ gameId, playerName, playerSocketId }) => {
+          io.sockets.emit(handlers.REMOVE_PLAYER, {
+            gameId,
+            playerName
+          });
+        }
+      );
+
+      socket.on(handlers.UPDATE_SOCKET_IDS, ({ allPlayers, gameId }) => {
+        const playersThatDontExistInSocket = allPlayers.filter(player => {
+          const connectedSockets = Object.keys(io.sockets.sockets);
+          return !connectedSockets.includes(player.socketId);
         });
+        if (playersThatDontExistInSocket.length > 0) {
+          io.sockets.emit(handlers.REMOVE_PLAYERS, {
+            players: playersThatDontExistInSocket,
+            gameId
+          });
+        }
       });
 
-      socket.on(handlers.CHANGE_PHRASE, phrase => {
-        io.sockets.emit(handlers.PHRASE_CHANGED, phrase);
+      socket.on(
+        handlers.CHANGE_PHRASE,
+        ({ nextPhrase, remainingPhrases, gameId }) => {
+          io.sockets.emit(handlers.PHRASE_CHANGED, {
+            gameId,
+            nextPhrase,
+            remainingPhrases
+          });
+        }
+      );
+
+      socket.on(handlers.RELOAD_TEAMS, game => {
+        io.sockets.emit(handlers.RELOAD_TEAMS, game);
       });
 
-      socket.on(handlers.DECLARE_WINNER, winner => {
-        io.sockets.emit(handlers.WINNER_DECLARED, winner);
+      socket.on(handlers.DECLARE_WINNER, ({ gameId, winner }) => {
+        io.sockets.emit(handlers.WINNER_DECLARED, { gameId, winner });
       });
-    });
-  }
 
-  onAddPlayer({ name, socket }, done) {
-    const teamWithFewerPlayers = sortBy(this.teams, team => {
-      return team.players.length;
-    })[0];
+      socket.on(handlers.LOADING, ({ isLoading, gameId }) => {
+        io.sockets.emit(handlers.LOADING, { isLoading, gameId });
+      });
 
-    const assignedTeam = teamWithFewerPlayers;
-    const player = {
-      id: socket.id,
-      teamId: assignedTeam.id,
-      name
-    };
-    const newTeam = {
-      ...assignedTeam,
-      players: [...assignedTeam.players, player]
-    };
-    this.teams = this.teams.map(team => {
-      if (team.id === assignedTeam.id) {
-        return newTeam;
-      }
-      return team;
-    });
-    done({
-      teams: this.teams,
-      name
+      socket.on(handlers.DISCONNECT, () => {
+        const connectedSockets = Object.keys(io.sockets.sockets);
+        io.sockets.emit("refresh teams", { connectedSockets });
+      });
     });
   }
 
   onChangePlayer({ player }, done) {
-    this.currentPlayer = player;
-    console.log("player in change player: ", player);
     done({
-      currentPlayer: this.currentPlayer
+      currentPlayer: player
     });
   }
 
-  onStartGame({ socket }, done) {
-    const { teams } = this;
-    this.game = { id: socket.id };
+  getPlayerLineup({ game }, done) {
+    const { teams } = game;
     const [team1, team2] = teams;
     const team1Players = team1.players.slice();
     const team2Players = team2.players.slice();
@@ -105,21 +105,8 @@ class Game {
       }
     }, []);
     done({
-      game: this.game,
+      game,
       playerLineup
-    });
-  }
-
-  onStartNewGame(_, done) {
-    this.teams = TEAMS_DEFAULT;
-    this.currentGame = null;
-    this.currentPlayer = null;
-    done({
-      newGame: {
-        teams: this.teams,
-        currentGame: this.currentGame,
-        currentPlayer: this.currentPlayer
-      }
     });
   }
 }

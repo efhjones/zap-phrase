@@ -1,10 +1,14 @@
 import React, { Component } from "react";
 import socketIOClient from "socket.io-client";
+import { flatten } from "lodash";
 
 import Game from "../Game";
 import JoinGame from "../JoinGame";
+import Loading from "../common/Loading";
+import AbortButton from "./AbortButton";
 
 import { getNextPlayer } from "../utils/gameUtils";
+import { prepareGameForState } from "../utils/utils.js";
 
 import "./styles.css";
 
@@ -12,23 +16,44 @@ class App extends Component {
   constructor() {
     super();
     this.state = {
-      endpoint: window.location.origin,
       name: null,
       teams: [],
       currentPlayer: null,
-      currentGame: null,
       phrases: [],
-      isLoading: false
+      isLoading: false,
+      isWaiting: false,
+      gameId: null,
+      isActive: false
     };
 
-    this.socket = socketIOClient(this.state.endpoint);
+    this.socket = socketIOClient(window.location.origin);
 
-    this.socket.on("phrase changed", phrase => {
-      this.setState({ currentPhrase: phrase });
+    this.socket.on("loading", ({ gameId, isLoading }) => {
+      if (gameId === this.state.gameId) {
+        this.setState({
+          isLoading
+        });
+      }
     });
 
-    this.socket.on("player added", teams => {
-      this.setState({ teams });
+    this.socket.on("player added", ({ gameId, teams }) => {
+      if (gameId === this.state.gameId) {
+        this.setState({ teams });
+      }
+    });
+
+    this.socket.on("start game", ({ gameId }) => {
+      if (this.props.gameId === gameId) {
+        this.setState({ isLoading: true }, this.logState);
+      }
+    });
+
+    this.socket.on("game stopped", ({ game }) => {
+      if (game.id === this.state.gameId) {
+        this.setState({
+          isActive: game.isActive
+        });
+      }
     });
 
     this.socket.on("game joined", name => {
@@ -36,76 +61,223 @@ class App extends Component {
     });
 
     this.socket.on("game started", ({ game, playerLineup }) => {
-      const nextPlayer = getNextPlayer(playerLineup);
-      const nextPlayerTeamId = nextPlayer.teamId;
-      this.setState({
-        hasStartedGame: true,
-        currentGame: game,
-        playerLineup,
-        currentPlayer: nextPlayer
-      });
-      this.socket.emit("start clock", { teamId: nextPlayerTeamId });
-    });
-
-    this.socket.on(
-      "new game started",
-      ({ teams, currentGame, currentPlayer }) => {
+      if (game.gameId === this.state.gameId) {
+        const nextPlayer = getNextPlayer(playerLineup);
+        const nextPlayerTeamId = nextPlayer.teamId;
         this.setState({
-          name: null,
-          teams,
-          currentGame,
-          currentPlayer
+          isActive: true,
+          isWaiting: false,
+          currentGame: game.id,
+          playerLineup,
+          currentPlayer: nextPlayer
+        });
+        this.socket.emit("start clock", {
+          teamId: nextPlayerTeamId,
+          gameId: this.state.gameId
         });
       }
-    );
+    });
 
-    this.socket.on("player changed", player => {
-      this.setState({
-        currentPlayer: player
+    this.socket.on("refresh teams", () => {
+      const allPlayers = flatten(this.state.teams.map(team => team.players));
+      this.socket.emit("update socket ids", {
+        allPlayers,
+        gameId: this.state.gameId
       });
     });
 
-    this.socket.on("player disconnected", ({ teams }) => {
-      this.setState(currentState => {
-        return { teams };
-      });
+    this.socket.on("reload teams", ({ game }) => {
+      if (game.id === this.state.gameId) {
+        this.setState({ teams: game.teams, isActive: game.isActive });
+      }
     });
 
-    this.socket.on("connection detected", teams => {
-      this.setState({
-        teams
-      });
+    this.socket.on("player changed", ({ gameId, nextPlayer }) => {
+      if (gameId === this.state.gameId)
+        this.setState({
+          currentPlayer: nextPlayer
+        });
+    });
+
+    this.socket.on("remove player", ({ gameId, playerName }) => {
+      if (gameId === this.state.gameId) {
+        this.removePlayer({ gameId, playerName });
+      }
+    });
+
+    this.socket.on("remove players", ({ players, gameId }) => {
+      if (this.state.gameId === gameId) {
+        players.forEach(player => {
+          this.removePlayer({
+            gameId: this.state.gameId,
+            playerName: player.name
+          });
+        });
+      }
     });
   }
 
   componentDidMount() {
     this.socket.emit("new connection");
-    if (!this.state.isLoading) {
-      this.loadPhrases();
-    }
+    const maybeGameId = window.location.pathname.replace("/", "");
+    this.getGame(maybeGameId);
   }
 
-  getData = async dataType => {
-    console.log("getting phrases");
-    const response = await fetch(`/api/${dataType}`);
-    const body = await response.json();
-
-    if (response.status !== 200) {
-      throw Error(body.message);
-    }
-    return body;
+  removePlayer = ({ gameId, playerName }) => {
+    return fetch("api/game/removePlayer", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ gameId, playerName })
+    })
+      .then(res => res.json())
+      .then(({ game }) => {
+        const preparedGame = prepareGameForState(game);
+        this.setState({
+          teams: preparedGame.teams,
+          isActive: preparedGame.isActive
+        });
+        this.socket.emit("reload teams", { game: preparedGame });
+      });
   };
 
-  loadPhrases = () => {
-    this.getData("phrases")
-      .then(({ phrases }) => {
-        this.setState({ phrases });
-      })
-      .catch(err => console.error(err));
+  getGame = gameId => {
+    if (!gameId) {
+      this.setState({
+        isLoading: true
+      });
+      fetch(`/api/game/`)
+        .then(res => res.json())
+        .then(({ gameCode }) => {
+          window.location.pathname = `${gameCode}`;
+        })
+        .catch(err => {
+          console.error(
+            "Aww man. I ran into an error and haven't implemented proper error handling yet. Oh well, here it is: ",
+            err
+          );
+        });
+    } else {
+      fetch(`/api/game/${gameId}`)
+        .then(res => res.json())
+        .then(({ game }) => {
+          if (game) {
+            const preparedGame = prepareGameForState(game);
+            const { id, phrases, teams, isActive } = preparedGame;
+            const allPlayers = flatten(teams.map(team => team.players));
+            this.socket.emit("update socket ids", { allPlayers, gameId: id });
+            this.setState({
+              isLoading: false,
+              gameId: id,
+              phrases,
+              teams,
+              isActive
+            });
+          } else {
+            window.location.pathname = "/";
+          }
+        });
+    }
   };
 
   joinGame = name => {
-    this.socket.emit("join game", name);
+    this.setState({
+      isWaiting: true,
+      name
+    });
+    fetch("/api/game/addPlayer", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        gameId: this.state.gameId,
+        name,
+        socketId: this.socket.id
+      })
+    })
+      .then(res => res.json())
+      .then(({ game }) => {
+        const preparedGame = prepareGameForState(game);
+        this.setState({
+          gameId: game.id,
+          name,
+          teams: preparedGame.teams,
+          isActive: preparedGame.isActive,
+          isWaiting: false
+        });
+        this.socket.emit("player added", {
+          gameId: game.id,
+          teams: preparedGame.teams
+        });
+      });
+  };
+
+  startGame = () => {
+    this.setState({
+      isLoading: true
+    });
+    this.socket.emit("loading", {
+      isLoading: true,
+      gameId: this.state.gameId
+    });
+    fetch("/api/game/startGame", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ gameId: this.state.gameId })
+    })
+      .then(res => res.json())
+      .then(({ game }) => {
+        const { teams, isActive, id } = prepareGameForState(game);
+        this.setState({
+          teams,
+          isActive,
+          isLoading: false
+        });
+        this.socket.emit("start game", {
+          gameId: id,
+          teams
+        });
+        this.socket.emit("loading", {
+          isLoading: false,
+          gameId: this.state.gameId
+        });
+      });
+  };
+
+  abortGame = () => {
+    this.setState({
+      isLoading: true
+    });
+    this.socket.emit("loading", {
+      isLoading: true,
+      gameId: this.state.gameId
+    });
+    fetch("/api/game/stopGame", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ gameId: this.state.gameId })
+    })
+      .then(res => res.json())
+      .then(({ game }) => {
+        const preparedGame = prepareGameForState(game);
+        this.setState({
+          isActive: preparedGame.isActive,
+          isLoading: false
+        });
+        this.socket.emit("loading", {
+          isLoading: false,
+          gameId: this.state.gameId
+        });
+        this.socket.emit("stop game", {
+          game: preparedGame
+        });
+      });
   };
 
   logState = label => {
@@ -113,33 +285,33 @@ class App extends Component {
   };
 
   render() {
-    const {
-      teams,
-      currentGame,
-      name,
-      currentPlayer,
-      playerLineup,
-      isLoading
-    } = this.state;
-    return isLoading ? (
-      <div className="container">Loading...</div>
+    const { state } = this;
+    return state.isLoading ? (
+      <Loading />
     ) : (
       <main className="container">
-        {!currentGame ? (
+        {state.isActive && (
+          <AbortButton onClick={this.abortGame} isLoading={state.isWaiting} />
+        )}
+        {!state.isActive ? (
           <JoinGame
-            teams={teams}
+            teams={state.teams}
             joinGame={this.joinGame}
-            name={name}
+            name={state.name}
             socket={this.socket}
+            startGame={this.startGame}
+            isWaiting={state.isWaiting}
           />
         ) : (
           <Game
             phrases={this.state.phrases}
-            teams={teams}
-            currentPlayer={currentPlayer}
-            name={name}
-            playerLineup={playerLineup}
+            teams={state.teams}
+            gameId={this.state.gameId}
+            currentPlayer={state.currentPlayer}
+            name={state.name}
+            playerLineup={state.playerLineup}
             socket={this.socket}
+            abortGame={this.abortGame}
           />
         )}
       </main>

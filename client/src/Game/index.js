@@ -24,12 +24,19 @@ class Game extends Component {
       winner: null
     };
 
-    this.props.socket.on("phrase changed", phrase => {
-      this.setState({ currentPhrase: phrase });
-    });
+    this.props.socket.on(
+      "phrase changed",
+      ({ nextPhrase, remainingPhrases, gameId }) => {
+        if (gameId === this.props.gameId) {
+          this.setState({ currentPhrase: nextPhrase, remainingPhrases });
+        }
+      }
+    );
 
-    this.props.socket.on("winner declared", winner => {
-      this.setState({ winner });
+    this.props.socket.on("winner declared", ({ winner, gameId }) => {
+      if (this.props.gameId === gameId) {
+        this.setState({ winner });
+      }
     });
   }
 
@@ -50,7 +57,10 @@ class Game extends Component {
   setNextPlayer = () => {
     const { playerLineup, currentPlayer } = this.props;
     const nextPlayer = getNextPlayer(playerLineup, currentPlayer);
-    this.props.socket.emit("change player", nextPlayer);
+    this.props.socket.emit("change player", {
+      gameId: this.props.gameId,
+      nextPlayer
+    });
   };
 
   setNextPhrase = () => {
@@ -59,25 +69,31 @@ class Game extends Component {
       remainingPhrases.shift();
     }
     const nextPhrase = remainingPhrases.shift();
-    this.props.socket.emit("change phrase", nextPhrase);
-  };
-
-  startNewGame = () => {
-    this.props.socket.emit("start new game");
+    this.setState({
+      nextPhrase,
+      remainingPhrases
+    });
+    this.props.socket.emit("change phrase", {
+      gameId: this.props.gameId,
+      nextPhrase,
+      remainingPhrases
+    });
   };
 
   render() {
-    const { currentPlayer, name } = this.props;
+    const { currentPlayer, name, gameId } = this.props;
     return this.state.winner ? (
-      <Winner winner={this.state.winner} startNewGame={this.startNewGame} />
+      <Winner winner={this.state.winner} startNewGame={this.props.abortGame} />
     ) : (
       <div className="vertical-section">
-        <Clock socket={this.props.socket} />
+        <Clock socket={this.props.socket} gameId={gameId} />
         <section className="vertical-section">
           <span className="player-heading">Current Player:</span>
-          <span className="player-name">{currentPlayer.name}</span>
+          <span className="player-name">
+            {currentPlayer && currentPlayer.name}
+          </span>
         </section>
-        {currentPlayer.name === name && (
+        {currentPlayer && currentPlayer.name === name && (
           <div>
             <section className="vertical-section">
               <span className="phrase">{this.state.currentPhrase}</span>

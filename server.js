@@ -1,13 +1,14 @@
 const express = require("express");
 const http = require("http");
 const path = require("path");
+const bodyParser = require("body-parser");
 const socketIO = require("socket.io");
 require("dotenv").config();
 
 const Game = require("./socket/game.js");
 const Clock = require("./socket/clock.js");
+
 const api = require("./app/api");
-const handlers = require("./socket/handlers.js");
 
 const app = express();
 const server = http.createServer(app);
@@ -23,12 +24,9 @@ const io = socketIO(server);
 new Game(io);
 new Clock(io);
 
-io.on(handlers.CONNECTION, socket => {
-  console.log("User connected");
-  socket.on(handlers.DISCONNECT, () => {
-    console.log("user disconnected");
-  });
-});
+app.set("trust proxy", "loopback");
+
+app.use(bodyParser.json({ type: "application/json" }));
 
 app.use("/api", api);
 

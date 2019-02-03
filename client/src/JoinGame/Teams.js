@@ -9,9 +9,9 @@ const Teams = ({ teams, name }) => {
           <div key={team.id}>
             <h2>Team {team.id}</h2>
             <ul>
-              {team.players.map(player => {
+              {team.players.map((player, i) => {
                 return (
-                  <li key={player.id}>
+                  <li key={`${player.id}${i}`}>
                     {player.name} {player.name === name && "-- that's you!"}
                   </li>
                 );
