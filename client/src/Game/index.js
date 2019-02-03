@@ -80,14 +80,10 @@ class Game extends Component {
     });
   };
 
-  startNewGame = () => {
-    this.props.socket.emit("start new game");
-  };
-
   render() {
     const { currentPlayer, name, gameId } = this.props;
     return this.state.winner ? (
-      <Winner winner={this.state.winner} startNewGame={this.startNewGame} />
+      <Winner winner={this.state.winner} startNewGame={this.props.abortGame} />
     ) : (
       <div className="vertical-section">
         <Clock socket={this.props.socket} gameId={gameId} />

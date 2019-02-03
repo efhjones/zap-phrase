@@ -20,12 +20,6 @@ class Game {
         socket.broadcast.emit(handlers.GAME_STOPPED, { game });
       });
 
-      socket.on(handlers.START_NEW_GAME, () => {
-        this.onStartNewGame(null, ({ newGame }) => {
-          io.sockets.emit(handlers.NEW_GAME_STARTED, newGame);
-        });
-      });
-
       socket.on(handlers.CHANGE_PLAYER, ({ gameId, nextPlayer }) => {
         io.sockets.emit(handlers.PLAYER_CHANGED, {
           gameId,
@@ -78,6 +72,11 @@ class Game {
       socket.on(handlers.LOADING, ({ isLoading, gameId }) => {
         io.sockets.emit(handlers.LOADING, { isLoading, gameId });
       });
+
+      socket.on(handlers.DISCONNECT, () => {
+        const connectedSockets = Object.keys(io.sockets.sockets);
+        io.sockets.emit("refresh teams", { connectedSockets });
+      });
     });
   }
 
@@ -108,18 +107,6 @@ class Game {
     done({
       game,
       playerLineup
-    });
-  }
-
-  onStartNewGame(_, done) {
-    this.currentGame = null;
-    this.currentPlayer = null;
-    done({
-      newGame: {
-        teams: this.teams,
-        currentGame: this.currentGame,
-        currentPlayer: this.currentPlayer
-      }
     });
   }
 }

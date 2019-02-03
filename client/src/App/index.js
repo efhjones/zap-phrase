@@ -78,17 +78,13 @@ class App extends Component {
       }
     });
 
-    this.socket.on(
-      "new game started",
-      ({ teams, currentGame, currentPlayer }) => {
-        this.setState({
-          name: null,
-          teams: "new game started",
-          currentGame,
-          currentPlayer
-        });
-      }
-    );
+    this.socket.on("refresh teams", () => {
+      const allPlayers = flatten(this.state.teams.map(team => team.players));
+      this.socket.emit("update socket ids", {
+        allPlayers,
+        gameId: this.state.gameId
+      });
+    });
 
     this.socket.on("reload teams", ({ game }) => {
       if (game.id === this.state.gameId) {
@@ -315,6 +311,7 @@ class App extends Component {
             name={state.name}
             playerLineup={state.playerLineup}
             socket={this.socket}
+            abortGame={this.abortGame}
           />
         )}
       </main>
