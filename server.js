@@ -10,8 +10,6 @@ const Clock = require("./socket/clock.js");
 
 const api = require("./app/api");
 
-const handlers = require("./socket/handlers.js");
-
 const app = express();
 const server = http.createServer(app);
 
