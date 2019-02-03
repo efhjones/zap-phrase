@@ -16,7 +16,7 @@ const createGameId = () => {
     .join("");
 };
 
-const addPlayerToTeam = ({ teams, name }) => {
+const addPlayerToTeam = ({ teams, name, socketId }) => {
   const teamWithFewerPlayers = sortBy(teams, team => {
     return team.players.length;
   })[0];
@@ -24,7 +24,8 @@ const addPlayerToTeam = ({ teams, name }) => {
   const assignedTeam = teamWithFewerPlayers;
   const player = {
     teamId: assignedTeam.id,
-    name
+    name,
+    socketId
   };
   const newTeam = {
     ...assignedTeam,
@@ -38,7 +39,20 @@ const addPlayerToTeam = ({ teams, name }) => {
   });
 };
 
+const removePlayerfromTeam = ({ teams, playerName }) => {
+  return teams.reduce((teamsWithoutPlayer, team) => {
+    const newPlayers = team.players.filter(player => {
+      return player.name !== playerName;
+    });
+    return teamsWithoutPlayer.concat({
+      ...team,
+      players: newPlayers
+    });
+  }, []);
+};
+
 module.exports = {
   createGameId,
-  addPlayerToTeam
+  addPlayerToTeam,
+  removePlayerfromTeam
 };

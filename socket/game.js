@@ -35,11 +35,19 @@ class Game {
         });
       });
 
+      socket.on("remove player", ({ gameId, playerName }) => {
+        io.sockets.emit("remove player", { gameId, playerName });
+      });
+
       socket.on(handlers.CHANGE_PHRASE, ({ nextPhrase, remainingPhrases }) => {
         io.sockets.emit(handlers.PHRASE_CHANGED, {
           nextPhrase,
           remainingPhrases
         });
+      });
+
+      socket.on("reload teams", game => {
+        io.sockets.emit("reload teams", game);
       });
 
       socket.on(handlers.DECLARE_WINNER, winner => {

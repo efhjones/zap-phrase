@@ -10,7 +10,7 @@ import { getNextPlayer } from "../utils/gameUtils";
 import {
   getLocalStorage,
   setLocalStorage,
-  isExistingPlayer,
+  clearLocalStorage,
   prepareGameForState
 } from "../utils/utils.js";
 
@@ -92,20 +92,27 @@ class App extends Component {
       }
     );
 
+    this.socket.on("reload teams", ({ game }) => {
+      this.setState({ teams: game.teams });
+    });
+
     this.socket.on("player changed", player => {
       this.setState({
         currentPlayer: player
       });
     });
 
-    this.socket.on("player disconnected", ({ teams }) => {
-      this.setState({
-        teams: "player disconnected"
-      });
+    this.socket.on("remove player", ({ gameId, playerName }) => {
+      this.removePlayer({ gameId, playerName });
     });
 
-    this.socket.on("reconnect", () => {
-      console.log("someone reconnected");
+    window.addEventListener("beforeunload", event => {
+      const playerName = getLocalStorage("name");
+      this.socket.emit("remove player", {
+        gameId: this.state.gameId,
+        playerName
+      });
+      clearLocalStorage();
     });
   }
 
@@ -114,6 +121,24 @@ class App extends Component {
     const maybeGameId = window.location.pathname.replace("/", "");
     this.getGame(maybeGameId);
   }
+
+  removePlayer = ({ gameId, playerName }) => {
+    return fetch("api/game/removePlayer", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({ gameId, playerName })
+    })
+      .then(res => res.json())
+      .then(({ game }) => {
+        const preparedGame = prepareGameForState(game);
+        this.setState({
+          teams: preparedGame.teams
+        });
+        this.socket.emit("reload teams", { game: preparedGame });
+      });
+  };
 
   getGame = gameId => {
     if (!gameId) {
@@ -138,12 +163,6 @@ class App extends Component {
         .then(({ game }) => {
           if (game) {
             const preparedGame = prepareGameForState(game);
-            const maybeUserName = getLocalStorage("name");
-            if (isExistingPlayer(maybeUserName, preparedGame)) {
-              this.setState({
-                name: maybeUserName
-              });
-            }
             const { id, phrases, teams, isActive } = preparedGame;
             this.setState({
               isLoading: false,
@@ -170,7 +189,11 @@ class App extends Component {
       headers: {
         "Content-Type": "application/json"
       },
-      body: JSON.stringify({ gameId: this.state.gameId, name })
+      body: JSON.stringify({
+        gameId: this.state.gameId,
+        name,
+        socketId: this.socket.id
+      })
     })
       .then(res => res.json())
       .then(({ game }) => {
