@@ -26,13 +26,6 @@ const io = socketIO(server);
 new Game(io);
 new Clock(io);
 
-io.on(handlers.CONNECTION, socket => {
-  console.log("User connected");
-  socket.on(handlers.DISCONNECT, () => {
-    console.log("user disconnected");
-  });
-});
-
 app.set("trust proxy", "loopback");
 
 app.use(bodyParser.json({ type: "application/json" }));
