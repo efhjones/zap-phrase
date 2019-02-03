@@ -36,14 +36,16 @@ class App extends Component {
       }
     });
 
-    this.socket.on("player added", game => {
-      if (game.gameId === this.state.gameId) {
-        this.setState({ teams: game.teams });
+    this.socket.on("player added", ({ gameId, teams }) => {
+      if (gameId === this.state.gameId) {
+        this.setState({ teams });
       }
     });
 
     this.socket.on("start game", ({ gameId }) => {
-      this.setState({ isLoading: true }, this.logState);
+      if (this.props.gameId === gameId) {
+        this.setState({ isLoading: true }, this.logState);
+      }
     });
 
     this.socket.on("game stopped", ({ game }) => {
@@ -69,7 +71,10 @@ class App extends Component {
           playerLineup,
           currentPlayer: nextPlayer
         });
-        this.socket.emit("start clock", { teamId: nextPlayerTeamId });
+        this.socket.emit("start clock", {
+          teamId: nextPlayerTeamId,
+          gameId: this.state.gameId
+        });
       }
     });
 
@@ -198,17 +203,17 @@ class App extends Component {
     })
       .then(res => res.json())
       .then(({ game }) => {
-        const { teams, isActive, id } = prepareGameForState(game);
+        const preparedGame = prepareGameForState(game);
         this.setState({
-          gameId: id,
+          gameId: game.id,
           name,
-          teams,
-          isActive,
+          teams: preparedGame.teams,
+          isActive: preparedGame.isActive,
           isWaiting: false
         });
         this.socket.emit("player added", {
           gameId: game.id,
-          teams
+          teams: preparedGame.teams
         });
       });
   };

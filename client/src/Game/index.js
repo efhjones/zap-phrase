@@ -33,8 +33,10 @@ class Game extends Component {
       }
     );
 
-    this.props.socket.on("winner declared", winner => {
-      this.setState({ winner });
+    this.props.socket.on("winner declared", ({ winner, gameId }) => {
+      if (this.props.gameId === gameId) {
+        this.setState({ winner });
+      }
     });
   }
 
@@ -83,12 +85,12 @@ class Game extends Component {
   };
 
   render() {
-    const { currentPlayer, name } = this.props;
+    const { currentPlayer, name, gameId } = this.props;
     return this.state.winner ? (
       <Winner winner={this.state.winner} startNewGame={this.startNewGame} />
     ) : (
       <div className="vertical-section">
-        <Clock socket={this.props.socket} gameId={this.props.gameId} />
+        <Clock socket={this.props.socket} gameId={gameId} />
         <section className="vertical-section">
           <span className="player-heading">Current Player:</span>
           <span className="player-name">

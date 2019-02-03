@@ -14,12 +14,14 @@ class Clock extends Component {
       hasReset: false
     };
 
-    this.props.socket.on("clock started", () => {
-      this.setState({
-        isCounting: true,
-        hasReset: false
-      });
-      this.createNewTime(this.state.activeTeam);
+    this.props.socket.on("clock started", ({ gameId }) => {
+      if (this.props.gameId === gameId) {
+        this.setState({
+          isCounting: true,
+          hasReset: false
+        });
+        this.createNewTime(this.state.activeTeam);
+      }
     });
 
     this.props.socket.on("player changed", ({ gameId }) => {
@@ -28,23 +30,29 @@ class Clock extends Component {
       }
     });
 
-    this.props.socket.on("clock paused", () => {
-      this.setState({ isCounting: false });
-      clearTimeout(this.team1Timeout);
-      clearTimeout(this.team2Timeout);
+    this.props.socket.on("clock paused", ({ gameId }) => {
+      if (this.props.gameId === gameId) {
+        this.setState({ isCounting: false });
+        clearTimeout(this.team1Timeout);
+        clearTimeout(this.team2Timeout);
+      }
     });
 
-    this.props.socket.on("clock reset", () => {
-      this.setState({ isCounting: false, hasReset: true });
-      this.setState({
-        team1: DEFAULT_CLOCK_TIME,
-        team2: DEFAULT_CLOCK_TIME
-      });
-      this.clearAllTimeouts();
+    this.props.socket.on("clock reset", ({ gameId }) => {
+      if (this.props.gameId === gameId) {
+        this.setState({ isCounting: false, hasReset: true });
+        this.setState({
+          team1: DEFAULT_CLOCK_TIME,
+          team2: DEFAULT_CLOCK_TIME
+        });
+        this.clearAllTimeouts();
+      }
     });
 
-    this.props.socket.on("clock stopped", () => {
-      this.clearAllTimeouts();
+    this.props.socket.on("clock stopped", ({ gameId }) => {
+      if (this.props.gameId === gameId) {
+        this.clearAllTimeouts();
+      }
     });
   }
 
@@ -70,13 +78,16 @@ class Clock extends Component {
   };
 
   stopClock = team => {
-    this.props.socket.emit("stop clock");
+    this.props.socket.emit("stop clock", { gameId: this.props.gameId });
     this.setState({
       team1: "3:00",
       team2: "3:00"
     });
     const winner = team === "team1" ? "team2" : "team1";
-    this.props.socket.emit("declare winner", winner);
+    this.props.socket.emit("declare winner", {
+      gameId: this.props.gameId,
+      winner
+    });
   };
 
   maybePrefix0 = number => {
@@ -99,15 +110,15 @@ class Clock extends Component {
   };
 
   pauseClock = () => {
-    this.props.socket.emit("pause clock");
+    this.props.socket.emit("pause clock", { gameId: this.props.gameId });
   };
 
   resumeClock = () => {
-    this.props.socket.emit("resume clock");
+    this.props.socket.emit("resume clock", { gameId: this.props.gameId });
   };
 
   resetClock = () => {
-    this.props.socket.emit("reset clock");
+    this.props.socket.emit("reset clock", { gameId: this.props.gameId });
   };
 
   render() {

@@ -3,8 +3,8 @@ const handlers = require("./handlers.js");
 class Game {
   constructor(io) {
     io.on(handlers.CONNECTION, socket => {
-      socket.on(handlers.PLAYER_ADDED, game => {
-        socket.broadcast.emit(handlers.PLAYER_ADDED, game);
+      socket.on(handlers.PLAYER_ADDED, ({ gameId, teams }) => {
+        socket.broadcast.emit(handlers.PLAYER_ADDED, { gameId, teams });
       });
 
       socket.on(handlers.START_GAME, game => {
@@ -71,8 +71,8 @@ class Game {
         io.sockets.emit(handlers.RELOAD_TEAMS, game);
       });
 
-      socket.on(handlers.DECLARE_WINNER, winner => {
-        io.sockets.emit(handlers.WINNER_DECLARED, winner);
+      socket.on(handlers.DECLARE_WINNER, ({ gameId, winner }) => {
+        io.sockets.emit(handlers.WINNER_DECLARED, { gameId, winner });
       });
 
       socket.on(handlers.LOADING, ({ isLoading, gameId }) => {
