@@ -1,8 +1,6 @@
 import React from "react";
 import { css } from "@emotion/core";
-// First way to import
 import { BeatLoader } from "react-spinners";
-// Another way to import
 
 const override = css`
   display: flex;
