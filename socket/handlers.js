@@ -28,8 +28,6 @@ module.exports = {
   RELOAD_TEAMS: "reload teams",
 
   UPDATE_SOCKET_IDS: "update socket ids",
-  START_NEW_GAME: "start new game",
-  NEW_GAME_STARTED: "new game started",
 
   // clock
   START_CLOCK: "start clock",
