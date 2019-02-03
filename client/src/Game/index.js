@@ -26,8 +26,10 @@ class Game extends Component {
 
     this.props.socket.on(
       "phrase changed",
-      ({ nextPhrase, remainingPhrases }) => {
-        this.setState({ currentPhrase: nextPhrase, remainingPhrases });
+      ({ nextPhrase, remainingPhrases, gameId }) => {
+        if (gameId === this.props.gameId) {
+          this.setState({ currentPhrase: nextPhrase, remainingPhrases });
+        }
       }
     );
 
@@ -53,7 +55,10 @@ class Game extends Component {
   setNextPlayer = () => {
     const { playerLineup, currentPlayer } = this.props;
     const nextPlayer = getNextPlayer(playerLineup, currentPlayer);
-    this.props.socket.emit("change player", nextPlayer);
+    this.props.socket.emit("change player", {
+      gameId: this.props.gameId,
+      nextPlayer
+    });
   };
 
   setNextPhrase = () => {
@@ -66,7 +71,11 @@ class Game extends Component {
       nextPhrase,
       remainingPhrases
     });
-    this.props.socket.emit("change phrase", { nextPhrase, remainingPhrases });
+    this.props.socket.emit("change phrase", {
+      gameId: this.props.gameId,
+      nextPhrase,
+      remainingPhrases
+    });
   };
 
   startNewGame = () => {
@@ -79,7 +88,7 @@ class Game extends Component {
       <Winner winner={this.state.winner} startNewGame={this.startNewGame} />
     ) : (
       <div className="vertical-section">
-        <Clock socket={this.props.socket} />
+        <Clock socket={this.props.socket} gameId={this.props.gameId} />
         <section className="vertical-section">
           <span className="player-heading">Current Player:</span>
           <span className="player-name">

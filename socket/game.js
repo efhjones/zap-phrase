@@ -2,15 +2,12 @@ const handlers = require("./handlers.js");
 
 class Game {
   constructor(io) {
-    this.game = null;
-    this.currentPlayer = null;
-
-    io.on("connection", socket => {
+    io.on(handlers.CONNECTION, socket => {
       socket.on(handlers.PLAYER_ADDED, game => {
         socket.broadcast.emit(handlers.PLAYER_ADDED, game);
       });
 
-      socket.on("start game", game => {
+      socket.on(handlers.START_GAME, game => {
         this.getPlayerLineup({ game }, ({ game, playerLineup }) => {
           io.sockets.emit(handlers.GAME_STARTED, {
             game,
@@ -29,41 +26,64 @@ class Game {
         });
       });
 
-      socket.on(handlers.CHANGE_PLAYER, player => {
-        this.onChangePlayer({ player }, ({ currentPlayer }) => {
-          io.sockets.emit(handlers.PLAYER_CHANGED, currentPlayer);
+      socket.on(handlers.CHANGE_PLAYER, ({ gameId, nextPlayer }) => {
+        io.sockets.emit(handlers.PLAYER_CHANGED, {
+          gameId,
+          nextPlayer
         });
       });
 
-      socket.on("remove player", ({ gameId, playerName }) => {
-        io.sockets.emit("remove player", { gameId, playerName });
-      });
+      socket.on(
+        handlers.REMOVE_PLAYER,
+        ({ gameId, playerName, playerSocketId }) => {
+          io.sockets.emit(handlers.REMOVE_PLAYER, {
+            gameId,
+            playerName
+          });
+        }
+      );
 
-      socket.on(handlers.CHANGE_PHRASE, ({ nextPhrase, remainingPhrases }) => {
-        io.sockets.emit(handlers.PHRASE_CHANGED, {
-          nextPhrase,
-          remainingPhrases
+      socket.on(handlers.UPDATE_SOCKET_IDS, ({ allPlayers, gameId }) => {
+        const playersThatDontExistInSocket = allPlayers.filter(player => {
+          const connectedSockets = Object.keys(io.sockets.sockets);
+          return !connectedSockets.includes(player.socketId);
         });
+        if (playersThatDontExistInSocket.length > 0) {
+          io.sockets.emit(handlers.REMOVE_PLAYERS, {
+            players: playersThatDontExistInSocket,
+            gameId
+          });
+        }
       });
 
-      socket.on("reload teams", game => {
-        io.sockets.emit("reload teams", game);
+      socket.on(
+        handlers.CHANGE_PHRASE,
+        ({ nextPhrase, remainingPhrases, gameId }) => {
+          io.sockets.emit(handlers.PHRASE_CHANGED, {
+            gameId,
+            nextPhrase,
+            remainingPhrases
+          });
+        }
+      );
+
+      socket.on(handlers.RELOAD_TEAMS, game => {
+        io.sockets.emit(handlers.RELOAD_TEAMS, game);
       });
 
       socket.on(handlers.DECLARE_WINNER, winner => {
         io.sockets.emit(handlers.WINNER_DECLARED, winner);
       });
 
-      socket.on("loading", ({ isLoading, gameId }) => {
-        io.sockets.emit("loading", { isLoading, gameId });
+      socket.on(handlers.LOADING, ({ isLoading, gameId }) => {
+        io.sockets.emit(handlers.LOADING, { isLoading, gameId });
       });
     });
   }
 
   onChangePlayer({ player }, done) {
-    this.currentPlayer = player;
     done({
-      currentPlayer: this.currentPlayer
+      currentPlayer: player
     });
   }
 

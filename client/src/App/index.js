@@ -1,5 +1,6 @@
 import React, { Component } from "react";
 import socketIOClient from "socket.io-client";
+import { flatten } from "lodash";
 
 import Game from "../Game";
 import JoinGame from "../JoinGame";
@@ -7,12 +8,7 @@ import Loading from "../common/Loading";
 import AbortButton from "./AbortButton";
 
 import { getNextPlayer } from "../utils/gameUtils";
-import {
-  getLocalStorage,
-  setLocalStorage,
-  clearLocalStorage,
-  prepareGameForState
-} from "../utils/utils.js";
+import { prepareGameForState } from "../utils/utils.js";
 
 import "./styles.css";
 
@@ -46,7 +42,7 @@ class App extends Component {
       }
     });
 
-    this.socket.on("start game", () => {
+    this.socket.on("start game", ({ gameId }) => {
       this.setState({ isLoading: true }, this.logState);
     });
 
@@ -66,16 +62,13 @@ class App extends Component {
       if (game.gameId === this.state.gameId) {
         const nextPlayer = getNextPlayer(playerLineup);
         const nextPlayerTeamId = nextPlayer.teamId;
-        this.setState(
-          {
-            isActive: true,
-            isWaiting: false,
-            currentGame: game.id,
-            playerLineup,
-            currentPlayer: nextPlayer
-          },
-          this.logState
-        );
+        this.setState({
+          isActive: true,
+          isWaiting: false,
+          currentGame: game.id,
+          playerLineup,
+          currentPlayer: nextPlayer
+        });
         this.socket.emit("start clock", { teamId: nextPlayerTeamId });
       }
     });
@@ -93,26 +86,33 @@ class App extends Component {
     );
 
     this.socket.on("reload teams", ({ game }) => {
-      this.setState({ teams: game.teams });
+      if (game.id === this.state.gameId) {
+        this.setState({ teams: game.teams, isActive: game.isActive });
+      }
     });
 
-    this.socket.on("player changed", player => {
-      this.setState({
-        currentPlayer: player
-      });
+    this.socket.on("player changed", ({ gameId, nextPlayer }) => {
+      if (gameId === this.state.gameId)
+        this.setState({
+          currentPlayer: nextPlayer
+        });
     });
 
     this.socket.on("remove player", ({ gameId, playerName }) => {
-      this.removePlayer({ gameId, playerName });
+      if (gameId === this.state.gameId) {
+        this.removePlayer({ gameId, playerName });
+      }
     });
 
-    window.addEventListener("beforeunload", event => {
-      const playerName = getLocalStorage("name");
-      this.socket.emit("remove player", {
-        gameId: this.state.gameId,
-        playerName
-      });
-      clearLocalStorage();
+    this.socket.on("remove players", ({ players, gameId }) => {
+      if (this.state.gameId === gameId) {
+        players.forEach(player => {
+          this.removePlayer({
+            gameId: this.state.gameId,
+            playerName: player.name
+          });
+        });
+      }
     });
   }
 
@@ -134,7 +134,8 @@ class App extends Component {
       .then(({ game }) => {
         const preparedGame = prepareGameForState(game);
         this.setState({
-          teams: preparedGame.teams
+          teams: preparedGame.teams,
+          isActive: preparedGame.isActive
         });
         this.socket.emit("reload teams", { game: preparedGame });
       });
@@ -149,7 +150,6 @@ class App extends Component {
         .then(res => res.json())
         .then(({ gameCode }) => {
           window.location.pathname = `${gameCode}`;
-          setLocalStorage("name", "");
         })
         .catch(err => {
           console.error(
@@ -164,6 +164,8 @@ class App extends Component {
           if (game) {
             const preparedGame = prepareGameForState(game);
             const { id, phrases, teams, isActive } = preparedGame;
+            const allPlayers = flatten(teams.map(team => team.players));
+            this.socket.emit("update socket ids", { allPlayers, gameId: id });
             this.setState({
               isLoading: false,
               gameId: id,
@@ -183,7 +185,6 @@ class App extends Component {
       isWaiting: true,
       name
     });
-    setLocalStorage("name", name);
     fetch("/api/game/addPlayer", {
       method: "POST",
       headers: {
@@ -304,6 +305,7 @@ class App extends Component {
           <Game
             phrases={this.state.phrases}
             teams={state.teams}
+            gameId={this.state.gameId}
             currentPlayer={state.currentPlayer}
             name={state.name}
             playerLineup={state.playerLineup}

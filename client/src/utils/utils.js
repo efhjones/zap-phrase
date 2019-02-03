@@ -1,15 +1,3 @@
-export const setLocalStorage = (key, value) => {
-  localStorage.setItem(key, value);
-};
-
-export const getLocalStorage = key => {
-  return localStorage.getItem(key);
-};
-
-export const clearLocalStorage = () => {
-  localStorage.clear();
-};
-
 const parseGame = game => {
   const teams = game.teams || "[]";
   const phrases = game.phrases || "{}";

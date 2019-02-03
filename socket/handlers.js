@@ -1,7 +1,9 @@
 module.exports = {
+  LOADING: "loading",
   // players
   PLAYER_ADDED: "player added",
-
+  REMOVE_PLAYER: "remove player",
+  REMOVE_PLAYERS: "remove players",
   CHANGE_PLAYER: "change player",
   PLAYER_CHANGED: "player changed",
 
@@ -23,6 +25,9 @@ module.exports = {
   STOP_GAME: "stop game",
   GAME_STOPPED: "game stopped",
 
+  RELOAD_TEAMS: "reload teams",
+
+  UPDATE_SOCKET_IDS: "update socket ids",
   START_NEW_GAME: "start new game",
   NEW_GAME_STARTED: "new game started",
 
