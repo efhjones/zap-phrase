@@ -29,7 +29,7 @@ app.set("trust proxy", "loopback");
 app.use(bodyParser.json({ type: "application/json" }));
 
 app.use("/api", api);
-app.get("/:code", express.static(path.join(__dirname, "client/build")));
+app.use("/:code", express.static(path.join(__dirname, "client/build")));
 
 server.listen(app.get("port"), () =>
   console.log(`Listening on port ${app.get("port")}`)
