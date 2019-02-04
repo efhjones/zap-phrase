@@ -16,9 +16,7 @@ const server = http.createServer(app);
 app.set("port", process.env.PORT || 5000);
 
 if (process.env.NODE_ENV === "production") {
-  app.use(
-    express.static(path.join(__dirname, "client/build"), { fallthrough: false })
-  );
+  app.use(express.static(path.join(__dirname, "client/build")));
 }
 
 const io = socketIO(server);
@@ -30,7 +28,7 @@ app.set("trust proxy", "loopback");
 
 app.use(bodyParser.json({ type: "application/json" }));
 
-app.use(express.static(path.join(__dirname, "client/build")));
+app.get("/*", express.static(path.join(__dirname, "client/build")));
 app.use("/api", api);
 
 server.listen(app.get("port"), () =>
