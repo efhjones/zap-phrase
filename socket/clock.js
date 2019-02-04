@@ -4,7 +4,6 @@ class Clock {
   constructor(io) {
     io.on(handlers.CONNECTION, socket => {
       socket.on(handlers.START_CLOCK, ({ gameId }) => {
-        console.log("in start clock handler ", gameId);
         socket.emit(handlers.CLOCK_STARTED, { gameId });
       });
 
@@ -13,7 +12,6 @@ class Clock {
       });
 
       socket.on(handlers.RESUME_CLOCK, ({ gameId }) => {
-        console.log("in resume clock handler ", gameId);
         io.sockets.emit(handlers.CLOCK_STARTED, { gameId });
       });
 
