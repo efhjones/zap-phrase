@@ -46,11 +46,16 @@ const findGame = (gameCode, done) => {
       cellFormat: "json"
     })
     .eachPage(
-      async (records, fetchNextPage) => {
-        const record = records.filter(record => {
-          return record.fields.id === gameCode;
+      (records, fetchNextPage) => {
+        const matchingRecord = records.filter(record => {
+          const recordId = record.get("id");
+          return recordId && recordId === gameCode;
         })[0];
-        done({ record });
+        if (matchingRecord) {
+          done({ record: matchingRecord });
+        } else {
+          fetchNextPage();
+        }
       },
       err => {
         done({ error: err });
@@ -73,8 +78,8 @@ app.get("/", async (req, res) => {
 app.get("/:code", (req, res) => {
   const gameCode = req.params.code;
   findGame(gameCode, result => {
-    if (result.error || !result.record) {
-      res.status(result.error ? 400 : 404).send({ msg: result.error });
+    if (!result.error && !result.record) {
+      res.status(404).send({ msg: result.error });
     } else if (result.record) {
       res.status(200).send({ game: result.record.fields });
     } else {
