@@ -1,19 +1,27 @@
 // @flow
-import React, { Component } from "react";
+import React, { Component, Fragment } from "react";
+import Loading from "../common/Loading";
 import Teams from "./Teams.js";
 import AsyncButton from "../common/Button/AsyncButton";
-import { hasSufficientNumbersToPlay } from "../utils/gameUtils";
+import {
+  hasSufficientNumbersToPlay,
+  isNameAvailable
+} from "../utils/gameUtils";
 
 import "./styles.css";
 
 class JoinGame extends Component {
   state = {
-    name: ""
+    name: "",
+    canUseName: true
   };
 
   updateName = event => {
+    const name = event.target.value;
+    const canUseName = isNameAvailable(this.props.teams, name);
     this.setState({
-      name: event.target.value
+      name,
+      canUseName
     });
   };
 
@@ -28,7 +36,10 @@ class JoinGame extends Component {
     const { state, props } = this;
     const { teams, name } = props;
     const canPlay = hasSufficientNumbersToPlay(teams);
-    return (
+    const { canUseName } = state;
+    return teams.length === 0 ? (
+      <Loading />
+    ) : (
       <div className="vertical-section">
         <div className="current-players">
           <Teams teams={teams} name={name} />
@@ -38,8 +49,18 @@ class JoinGame extends Component {
         </div>
         {!props.name && (
           <form className="vertical-section">
-            <label className="name-label vertical-section">
-              What's your name, friend?
+            <label
+              className={`name-label vertical-section ${!canUseName &&
+                "validation-failed"}`}
+            >
+              {!canUseName ? (
+                <Fragment>
+                  <span>Sorry, that name’s taken.</span>
+                  <span>Choose another?</span>
+                </Fragment>
+              ) : (
+                "What’s your name, friend?"
+              )}
               <input
                 className="name-field"
                 type="text"
@@ -48,7 +69,9 @@ class JoinGame extends Component {
               />
             </label>
             <AsyncButton
-              disabled={state.name.length === 0 || props.isWaiting}
+              disabled={
+                state.name.length === 0 || props.isWaiting || !canUseName
+              }
               isLoading={props.isWaiting}
               type="submit"
               onClick={this.joinGame}
