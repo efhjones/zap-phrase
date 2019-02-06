@@ -1,4 +1,4 @@
-import { findIndex } from "lodash";
+import { findIndex, flatten, flowRight, includes } from "lodash";
 
 export const hasSufficientNumbersToPlay = teams =>
   teams.reduce((sum, team) => {
@@ -15,4 +15,22 @@ export const getNextPlayer = (lineup, currentPlayer) => {
       ? lineup[0]
       : lineup[currentPlayerIndex + 1];
   }
+};
+
+const getAllPlayersInTeams = teams => {
+  return flatten(teams.map(team => team.players));
+};
+
+const getAllPlayerNames = players => {
+  return players.map(player => player.name);
+};
+
+const getAllNamesInTeams = flowRight(
+  getAllPlayerNames,
+  getAllPlayersInTeams
+);
+
+export const isNameAvailable = (teams, name = "") => {
+  const allPlayerNames = getAllNamesInTeams(teams);
+  return !includes(allPlayerNames, name);
 };
