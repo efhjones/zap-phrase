@@ -124,7 +124,7 @@ class App extends Component {
   }
 
   removePlayer = ({ gameId, playerName }) => {
-    return fetch("api/game/removePlayer", {
+    return fetch("/api/game/removePlayer", {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
