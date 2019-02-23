@@ -67,7 +67,7 @@ class JoinGame extends Component {
           Your Game
           <div className="invite-link-and-button">
             <p className="invite-link">{window.location.href}</p>
-            <Button color="blue" size="small" onClick={this.copyInviteLink}>
+            <Button color="green" size="small" onClick={this.copyInviteLink}>
               {copyButtonText}
             </Button>
           </div>

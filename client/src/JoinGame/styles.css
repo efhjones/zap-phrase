@@ -80,7 +80,6 @@
   margin: 0 20px 0;
   min-height: 300px;
   border-radius: 5px 5px 0 0;
-  border: 1px solid var(--green);
 }
 
 #team-1 {
@@ -88,7 +87,7 @@
 }
 
 #team-2 {
-  border: 1px solid var(--green);
+  border: 1px solid var(--blue);
 }
 
 .team-header {
@@ -108,7 +107,7 @@
 }
 
 #team-header-2 {
-  background-color: var(--green);
+  background-color: var(--blue);
 }
 
 .team-members {
