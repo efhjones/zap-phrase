@@ -100,9 +100,9 @@ class Game extends Component {
               <span className="phrase">{this.state.currentPhrase}</span>
             </section>
 
-            <section className="horizontal-section">
+            <section className="play-buttons">
               <Button
-                className="skip button"
+                color="stone"
                 onClick={() => {
                   this.setNextPhrase();
                 }}
@@ -110,6 +110,7 @@ class Game extends Component {
                 Skip
               </Button>
               <Button
+                color="green"
                 onClick={() => {
                   this.setNextPlayer();
                   this.setNextPhrase();

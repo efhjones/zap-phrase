@@ -6,7 +6,7 @@ import "./Loading.css";
 const Loading = props => {
   return (
     <div className="loading-container">
-      <Spinner color={"blue"} />
+      <Spinner color={"rgba(3, 206, 164, 1)"} />
     </div>
   );
 };

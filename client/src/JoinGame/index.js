@@ -100,10 +100,10 @@ class JoinGame extends Component {
               disabled={
                 state.name.length === 0 || props.isWaiting || !canUseName
               }
+              color="green"
               isLoading={props.isWaiting}
               type="submit"
               onClick={this.joinGame}
-              className="button start"
             >
               Join
             </AsyncButton>
@@ -113,7 +113,7 @@ class JoinGame extends Component {
           <AsyncButton
             isLoading={props.isWaiting}
             disabled={!canPlay || props.isWaiting}
-            className="button start"
+            color={canPlay ? "green" : "stone"}
             onClick={props.startGame}
           >
             {canPlay ? "start" : "need moar players"}
