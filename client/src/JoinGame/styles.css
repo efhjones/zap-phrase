@@ -1,23 +1,46 @@
-.invite-link {
+@import "../common/Styles.css";
+
+.invite-link-section {
   display: flex;
-  width: 50%;
   text-transform: uppercase;
   font-weight: 600;
-  font-size: 1.5em;
-  flex-wrap: wrap;
-  justify-content: center;
+  flex-direction: column;
   align-items: center;
   text-align: center;
-  margin: 60px auto;
+  margin: 60px 0 auto;
+  font-size: 25px;
+}
+
+.invite-link {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  font-size: 25px;
+}
+
+@media (max-width: 650px) {
+  .invite-link {
+    justify-content: center;
+    font-size: 5vw;
+  }
 }
 
 .current-players {
   text-transform: uppercase;
   font-weight: 600;
   font-size: 2em;
-  width: 100%;
   display: flex;
   justify-content: center;
+  width: 80vw;
+  margin: 50px auto;
+}
+
+@media (max-width: 700px) {
+  .current-players {
+    width: 100vw;
+  }
 }
 
 .name-label {
@@ -27,7 +50,7 @@
 }
 
 .name-label.validation-failed {
-  color: red;
+  color: var(--coral);
 }
 
 .name-field {
@@ -40,15 +63,47 @@
 
 .teams {
   display: flex;
-  justify-content: space-evenly;
-  width: 100%;
+  flex: 1 1 0;
 }
 
 .team {
   display: flex;
-  flex: 1 1 0;
   flex-direction: column;
+  flex: 1 1 0;
   text-align: center;
+  color: var(--white);
+  margin: 0 20px 0;
+  min-height: 300px;
+  border-radius: 5px 5px 0 0;
+  border: 1px solid var(--green);
+}
+
+#team-1 {
+  border: 1px solid var(--coral);
+}
+
+#team-2 {
+  border: 1px solid var(--green);
+}
+
+.team-header {
+  margin: 0;
+  border-radius: 4px 4px 0 0;
+  font-size: 2vw;
+}
+
+@media (max-width: 950px) {
+  .team-header {
+    font-size: 20px;
+  }
+}
+
+#team-header-1 {
+  background-color: var(--coral);
+}
+
+#team-header-2 {
+  background-color: var(--green);
 }
 
 .team-members {
@@ -61,4 +116,5 @@
   justify-content: center;
   list-style: none;
   padding-inline-start: 0;
+  color: black;
 }

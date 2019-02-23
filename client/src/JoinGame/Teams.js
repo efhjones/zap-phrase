@@ -1,22 +1,15 @@
 // @flow
 import React from "react";
 
-const teamColors = {
-  1: "#ff4a00",
-  2: "#7678ed"
-};
-
 const Teams = ({ teams, name }) => {
   return (
     <div className="teams">
-      {teams.map(team => {
+      {teams.map((team, i) => {
         return (
-          <div
-            key={team.id}
-            className="team"
-            style={{ color: teamColors[team.id] }}
-          >
-            <h2>Team {team.id}</h2>
+          <div key={team.id} className="team" id={`team-${i + 1}`}>
+            <div className="team-header" id={`team-header-${i + 1}`}>
+              <h2>Team {team.id}</h2>
+            </div>
             <ul className="team-members">
               {team.players.map((player, i) => {
                 return (
