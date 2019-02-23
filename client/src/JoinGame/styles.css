@@ -1,5 +1,17 @@
 @import "../common/Styles.css";
 
+.zap-phrase-title {
+  font-size: 5em;
+  margin: 20px 0 40px 0;
+  text-align: center;
+}
+
+.invite-and-join-section {
+  display: flex;
+  flex-direction: row;
+  width: 80vw;
+}
+
 .invite-link-section {
   display: flex;
   text-transform: uppercase;
@@ -7,8 +19,9 @@
   flex-direction: column;
   align-items: center;
   text-align: center;
-  margin: 60px 0 auto;
   font-size: 25px;
+  width: 50vw;
+  flex-grow: 1;
 }
 
 .invite-link-and-button {
@@ -31,23 +44,20 @@
   margin: 0 10px;
 }
 
-.current-players {
-  text-transform: uppercase;
-  font-weight: 600;
-  font-size: 2em;
+.join-game-section {
   display: flex;
+  width: 50vw;
+  flex-direction: column;
   justify-content: center;
-  width: 80vw;
-  margin: 50px auto;
+  align-items: center;
 }
 
-@media (max-width: 700px) {
-  .current-players {
-    width: 100vw;
-  }
+.join-game-form {
+  width: 100%;
 }
 
 .name-label {
+  width: 100%;
   font-size: 2em;
   text-transform: uppercase;
   font-weight: 600;
@@ -66,6 +76,22 @@
   text-align: center;
 }
 
+.current-players {
+  text-transform: uppercase;
+  font-weight: 600;
+  font-size: 2em;
+  display: flex;
+  justify-content: center;
+  width: 80vw;
+  margin: 50px auto;
+}
+
+@media (max-width: 700px) {
+  .current-players {
+    width: 100vw;
+  }
+}
+
 .teams {
   display: flex;
   flex: 1 1 0;
@@ -77,9 +103,12 @@
   flex: 1 1 0;
   text-align: center;
   color: var(--white);
-  margin: 0 20px 0;
   min-height: 300px;
   border-radius: 5px 5px 0 0;
+}
+
+.team:first-of-type {
+  margin-right: 20px;
 }
 
 #team-1 {
@@ -121,11 +150,6 @@
   list-style: none;
   padding-inline-start: 0;
   color: black;
-}
-
-.zap-phrase-title {
-  font-size: 4em;
-  margin: 10px 0 40px 0;
 }
 
 .coral-text {
