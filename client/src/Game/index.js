@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import { shuffle, isEmpty } from "lodash";
 
+import AbortButton from "../common/Button/AbortButton";
 import Button from "../common/Button/Button";
 import Clock from "./Clock";
 import Winner from "./Winner";
@@ -82,46 +83,57 @@ class Game extends Component {
   };
 
   render() {
-    const { currentPlayer, name, gameId } = this.props;
-    return this.state.winner ? (
-      <Winner winner={this.state.winner} startNewGame={this.props.abortGame} />
+    const { state, props } = this;
+    const { currentPlayer, name, gameId } = props;
+    return state.winner ? (
+      <Winner winner={state.winner} startNewGame={props.abortGame} />
     ) : (
-      <div className="vertical-section">
-        <Clock socket={this.props.socket} gameId={gameId} />
-        <section className="vertical-section">
-          <span className="player-heading">Current Player:</span>
-          <span className="player-name">
-            {currentPlayer && currentPlayer.name}
-          </span>
-        </section>
-        {currentPlayer && currentPlayer.name === name && (
-          <div>
-            <section className="vertical-section">
-              <span className="phrase">{this.state.currentPhrase}</span>
-            </section>
+      [
+        <div className="game-control">
+          {props.isActive && (
+            <AbortButton
+              onClick={props.abortGame}
+              isLoading={state.isWaiting}
+            />
+          )}
+          <Clock socket={props.socket} gameId={gameId} key="clock" />
+        </div>,
+        <div className="vertical-section" key="game">
+          <section className="vertical-section">
+            <span className="player-heading">Current Player:</span>
+            <span className="player-name">
+              {currentPlayer && currentPlayer.name}
+            </span>
+          </section>
+          {currentPlayer && currentPlayer.name === name && (
+            <div>
+              <section className="vertical-section">
+                <span className="phrase">{state.currentPhrase}</span>
+              </section>
 
-            <section className="play-buttons">
-              <Button
-                color="stone"
-                onClick={() => {
-                  this.setNextPhrase();
-                }}
-              >
-                Skip
-              </Button>
-              <Button
-                color="green"
-                onClick={() => {
-                  this.setNextPlayer();
-                  this.setNextPhrase();
-                }}
-              >
-                Next
-              </Button>
-            </section>
-          </div>
-        )}
-      </div>
+              <section className="play-buttons">
+                <Button
+                  color="stone"
+                  onClick={() => {
+                    this.setNextPhrase();
+                  }}
+                >
+                  Skip
+                </Button>
+                <Button
+                  color="green"
+                  onClick={() => {
+                    this.setNextPlayer();
+                    this.setNextPhrase();
+                  }}
+                >
+                  Next
+                </Button>
+              </section>
+            </div>
+          )}
+        </div>
+      ]
     );
   }
 }

@@ -5,7 +5,6 @@ import { flatten } from "lodash";
 import Game from "../Game";
 import JoinGame from "../JoinGame";
 import Loading from "../common/Loading";
-import AbortButton from "./AbortButton";
 
 import { getNextPlayer } from "../utils/gameUtils";
 import { prepareGameForState } from "../utils/utils.js";
@@ -290,9 +289,7 @@ class App extends Component {
       <Loading />
     ) : (
       <main className="container">
-        {state.isActive && (
-          <AbortButton onClick={this.abortGame} isLoading={state.isWaiting} />
-        )}
+        {/* {false ? ( */}
         {!state.isActive ? (
           <JoinGame
             teams={state.teams}
@@ -304,6 +301,7 @@ class App extends Component {
           />
         ) : (
           <Game
+            isActive={this.state.isActive}
             phrases={this.state.phrases}
             teams={state.teams}
             gameId={this.state.gameId}

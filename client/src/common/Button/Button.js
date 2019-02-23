@@ -9,10 +9,11 @@ const Button = ({
   children,
   size = "large",
   color = "green",
-  className = ""
+  style = {}
 }) => (
   <button
     className={`button ${size} ${color}`}
+    style={style}
     disabled={disabled}
     onClick={onClick}
   >

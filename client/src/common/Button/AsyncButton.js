@@ -9,6 +9,7 @@ const AsyncButton = props => {
       size={props.size}
       disabled={props.disabled}
       onClick={props.onClick}
+      style={props.style || {}}
     >
       {props.isLoading ? (
         <Spinner color="rgba(3, 206, 164, 1)" />
