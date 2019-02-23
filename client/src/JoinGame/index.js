@@ -93,8 +93,8 @@ class JoinGame extends Component {
       <div className="vertical-section">
         <div className="invite-link-section">
           Your Game
-          <div className="invite-link">
-            <p>{window.location.href}</p>
+          <div className="invite-link-and-button">
+            <p className="invite-link">{window.location.href}</p>
             <Button color="blue" size="small" onClick={this.copyInviteLink}>
               {copyButtonText}
             </Button>
