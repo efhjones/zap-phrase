@@ -11,7 +11,7 @@ const AsyncButton = props => {
 };
 
 AsyncButton.defaultProps = {
-  color: "#97d320"
+  color: "rgba(3, 206, 164, 1)"
 };
 
 export default AsyncButton;

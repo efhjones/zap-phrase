@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import { shuffle, isEmpty } from "lodash";
 
+import Button from "../common/Button/Button";
 import Clock from "./Clock";
 import Winner from "./Winner";
 
@@ -100,23 +101,22 @@ class Game extends Component {
             </section>
 
             <section className="horizontal-section">
-              <button
+              <Button
                 className="skip button"
                 onClick={() => {
                   this.setNextPhrase();
                 }}
               >
                 Skip
-              </button>
-              <button
-                className="next button"
+              </Button>
+              <Button
                 onClick={() => {
                   this.setNextPlayer();
                   this.setNextPhrase();
                 }}
               >
                 Next
-              </button>
+              </Button>
             </section>
           </div>
         )}
