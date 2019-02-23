@@ -3,9 +3,16 @@ import React from "react";
 
 import "./button.css";
 
-const Button = ({ onClick, disabled, children, kind, className }) => (
+const Button = ({
+  onClick,
+  disabled = false,
+  children,
+  size = "large",
+  color = "green",
+  className = ""
+}) => (
   <button
-    className={`button ${kind ? kind : ""} ${className}`}
+    className={`button ${size} ${color}`}
     disabled={disabled}
     onClick={onClick}
   >

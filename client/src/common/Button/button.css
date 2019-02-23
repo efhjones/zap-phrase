@@ -1,20 +1,20 @@
+@import "../Styles.css";
+
 .button {
   border-radius: 5px;
-  color: white;
+  color: var(--white);
   text-transform: uppercase;
   font-weight: 600;
-  width: 40vw;
-  font-size: 300%;
-  height: 40vh;
-  max-height: 175px;
-  max-width: 300px;
-  margin: 0 4vw;
-  min-width: 200px;
-  background-color: #97d320;
+  font-size: 2vw;
+  height: 150px;
+  width: 250px;
+  cursor: pointer;
+  border: none;
 }
 
-.abort {
-  background-color: #ff4a00;
+.small {
+  height: 50px;
+  width: 140px;
 }
 
 .button:hover :not(disabled) {
@@ -22,5 +22,36 @@
 }
 
 .button:disabled {
-  background-color: grey;
+  background-color: var(--stone);
+}
+
+@media (max-width: 1000px) {
+  .small {
+    font-size: 1.5em;
+  }
+  .button {
+    font-size: 30px;
+  }
+}
+
+.gold {
+  background-color: var(--gold);
+}
+.green {
+  background-color: var(--green);
+}
+.coral {
+  background-color: var(--coral);
+}
+.violet {
+  background-color: var(--violet);
+}
+.blue {
+  background-color: var(--blue);
+}
+.stone {
+  background-color: var(--stone);
+}
+.white {
+  background-color: var(--white);
 }
