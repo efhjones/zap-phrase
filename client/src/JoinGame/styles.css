@@ -122,3 +122,24 @@
   padding-inline-start: 0;
   color: black;
 }
+
+.zap-phrase-title {
+  font-size: 4em;
+  margin: 10px 0 40px 0;
+}
+
+.coral-text {
+  color: var(--coral);
+}
+.gold-text {
+  color: var(--gold);
+}
+.green-text {
+  color: var(--green);
+}
+.violet-text {
+  color: var(--violet);
+}
+.blue-text {
+  color: var(--blue);
+}

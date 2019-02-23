@@ -4,6 +4,8 @@ import Loading from "../common/Loading";
 import Teams from "./Teams.js";
 import Button from "../common/Button/Button";
 import AsyncButton from "../common/Button/AsyncButton";
+import ZapPhraseTitle from "./ZapPhraseTitle";
+
 import {
   hasSufficientNumbersToPlay,
   isNameAvailable
@@ -64,7 +66,7 @@ class JoinGame extends Component {
     ) : (
       <div className="vertical-section">
         <div className="invite-link-section">
-          Your Game
+          <ZapPhraseTitle />
           <div className="invite-link-and-button">
             <p className="invite-link">{window.location.href}</p>
             <Button color="green" size="small" onClick={this.copyInviteLink}>
