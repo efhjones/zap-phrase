@@ -10,6 +10,7 @@
   display: flex;
   flex-direction: row;
   width: 80vw;
+  flex-wrap: wrap;
 }
 
 .invite-link-section {
@@ -53,7 +54,10 @@
 }
 
 .join-game-form {
+  display: flex;
+  flex-direction: column;
   width: 100%;
+  align-items: center;
 }
 
 .name-label {
@@ -69,11 +73,17 @@
 }
 
 .name-field {
-  font-size: 1em;
+  font-size: 2vw;
   text-transform: uppercase;
   font-weight: 600;
   width: 100%;
   text-align: center;
+}
+
+@media (max-width: 1000px) {
+  .name-field {
+    font-size: 1em;
+  }
 }
 
 .current-players {

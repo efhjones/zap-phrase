@@ -107,7 +107,6 @@ class JoinGame extends Component {
                     type="submit"
                     onClick={this.joinGame}
                     size="small"
-                    style={{ width: "100%" }}
                   >
                     Join
                   </AsyncButton>
