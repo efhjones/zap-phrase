@@ -46,7 +46,7 @@ class JoinGame extends Component {
 
   registerCopySuccess = () => {
     this.toggleCopyButtonText();
-    setTimeout(this.toggleCopyButtonText, 3000);
+    setTimeout(this.toggleCopyButtonText, 1500);
   };
 
   toggleCopyButtonText = () => {
