@@ -6,7 +6,7 @@ const AbortButton = ({ onClick, isWaiting }) => {
     <AsyncButton
       isLoading={isWaiting}
       onClick={onClick}
-      color="coral"
+      color="orange"
       style={{ marginRight: "50px" }}
     >
       Abort!
