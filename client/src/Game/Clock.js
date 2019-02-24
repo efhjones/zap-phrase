@@ -154,7 +154,7 @@ class Clock extends Component {
               onClick={this.resumeClock}
               size="small"
               color="green"
-              style={{ flexGrow: 1, borderRadius: "0 0 0 5px" }}
+              style={{ borderRadius: "0 0 0 5px", width: "50%" }}
             >
               Resume
             </Button>
@@ -164,7 +164,7 @@ class Clock extends Component {
               onClick={this.resetClock}
               size="small"
               color="blue"
-              style={{ flexGrow: 1, borderRadius: "0 0 5px 0" }}
+              style={{ borderRadius: "0 0 5px 0", width: "50%" }}
             >
               Reset
             </Button>
