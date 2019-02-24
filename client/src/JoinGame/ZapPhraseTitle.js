@@ -2,7 +2,7 @@
 import React from "react";
 
 const getColor = number => {
-  const colors = ["blue", "coral", "gold", "green", "violet"];
+  const colors = ["blue", "orange", "gold", "green", "violet"];
   if (number >= colors.length) {
     return getColor(number - colors.length);
   }
@@ -12,14 +12,7 @@ const getColor = number => {
 };
 
 const ZapPhraseTitle = () => {
-  const letters = ["Z", "A", "P", " ", "P", "H", "R", "A", "S", "E"];
-  return (
-    <h1 className="zap-phrase-title">
-      {letters.map((letter, i) => (
-        <span className={`${getColor(i)}-text`}>{letter}</span>
-      ))}
-    </h1>
-  );
+  return <h1 className={`zap-phrase-title orange-text`}>Zap Phrase</h1>;
 };
 
 export default ZapPhraseTitle;
