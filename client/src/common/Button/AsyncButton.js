@@ -4,14 +4,20 @@ import Button from "./Button";
 
 const AsyncButton = props => {
   return (
-    <Button kind={props.kind} disabled={props.disabled} onClick={props.onClick}>
-      {props.isLoading ? <Spinner color={props.color} /> : props.children}
+    <Button
+      color={props.color}
+      size={props.size}
+      disabled={props.disabled}
+      onClick={props.onClick}
+      style={props.style || {}}
+    >
+      {props.isLoading ? (
+        <Spinner color="rgba(3, 206, 164, 1)" />
+      ) : (
+        props.children
+      )}
     </Button>
   );
-};
-
-AsyncButton.defaultProps = {
-  color: "#97d320"
 };
 
 export default AsyncButton;

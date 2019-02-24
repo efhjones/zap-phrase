@@ -1,15 +1,79 @@
+@import "../common/Styles.css";
+
 .vertical-section {
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin: 30px 10px;
 }
 
-.horizontal-section {
+.game-control {
+  display: flex;
+  justify-content: space-between;
+}
+
+.clock {
+  margin: 0 0 50px 0;
+}
+
+.timers {
+  border: 3px solid var(--blue);
+  border-radius: 5px 5px 0 0;
+  width: 300px;
+  height: 150px;
   display: flex;
   flex-direction: row;
-  margin: 30px 10px;
-  justify-content: space-around;
+}
+
+@media (max-width: 700px) {
+  .timers {
+    width: 50vw;
+  }
+}
+
+.timer {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  text-transform: uppercase;
+  font-weight: 600;
+  font-size: 2vw;
+}
+
+@media (max-width: 1250px) {
+  .timer {
+    font-size: 25px;
+  }
+}
+
+.timer:first-of-type {
+  border-right: 3px solid var(--blue);
+}
+
+.timer.isActive {
+  background-color: var(--gold);
+}
+
+.clock-buttons {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+}
+
+.play-buttons {
+  width: 40vw;
+  margin: 0 auto;
+  display: flex;
+  justify-content: space-between;
+}
+
+@media (max-width: 400px) {
+  .play-buttons {
+    width: 100vw;
+    justify-content: center;
+  }
 }
 
 .player-heading {
@@ -28,26 +92,4 @@
   text-transform: uppercase;
   font-weight: 600;
   font-size: 6vw;
-}
-
-.button {
-  border-radius: 5px;
-  color: white;
-  text-transform: uppercase;
-  font-weight: 600;
-  width: 40vw;
-  font-size: 400%;
-  height: 40vh;
-  max-height: 175px;
-  max-width: 300px;
-  margin: 0 4vw;
-  min-width: 200px;
-}
-
-.next {
-  background-color: #97d320;
-}
-
-.skip {
-  background-color: #c2c6d6;
 }

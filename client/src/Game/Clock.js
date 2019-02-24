@@ -1,6 +1,8 @@
 // @flow
 import React, { Component } from "react";
 
+import Button from "../common/Button/Button";
+
 const DEFAULT_CLOCK_TIME = "3:00";
 
 class Clock extends Component {
@@ -124,18 +126,50 @@ class Clock extends Component {
   render() {
     const { team1, team2 } = this.state;
     return (
-      <div>
-        <div>Team 1: {team1}</div>
-        <div>Team 2: {team2}</div>
-        {this.state.isCounting && (
-          <button onClick={this.pauseClock}>Pause</button>
-        )}
-        {!this.state.isCounting && (
-          <button onClick={this.resumeClock}>Resume</button>
-        )}
-        {!this.state.isCounting && (
-          <button onClick={this.resetClock}>Reset</button>
-        )}
+      <div className="clock">
+        <div className="timers">
+          {[team1, team2].map((team, i) => {
+            const isActiveTeam = `team${i + 1}` === this.state.activeTeam;
+            return (
+              <div className={`timer ${isActiveTeam ? "isActive" : ""}`}>
+                <span>Team {i + 1}</span>
+                <span>{team}</span>
+              </div>
+            );
+          })}
+        </div>
+        <div className="clock-buttons">
+          {this.state.isCounting && (
+            <Button
+              style={{ flexGrow: 1 }}
+              onClick={this.pauseClock}
+              size="small"
+              color="gold"
+            >
+              Pause
+            </Button>
+          )}
+          {!this.state.isCounting && (
+            <Button
+              onClick={this.resumeClock}
+              size="small"
+              color="green"
+              style={{ borderRadius: "0 0 0 5px", width: "50%" }}
+            >
+              Resume
+            </Button>
+          )}
+          {!this.state.isCounting && (
+            <Button
+              onClick={this.resetClock}
+              size="small"
+              color="blue"
+              style={{ borderRadius: "0 0 5px 0", width: "50%" }}
+            >
+              Reset
+            </Button>
+          )}
+        </div>
       </div>
     );
   }

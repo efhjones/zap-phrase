@@ -1,0 +1,14 @@
+:root {
+  --coral: rgba(254, 74, 73, 1);
+  --gold: rgba(252, 207, 70, 1);
+  --stone: rgba(197, 197, 201, 1);
+  --green: rgba(3, 206, 164, 1);
+  --violet: rgba(86, 86, 201, 1);
+  --blue: rgba(76, 187, 232, 1);
+  --white: rgba(244, 244, 248, 1);
+  --orange: rgba(255, 107, 53, 1);
+  --peach: rgba(247, 197, 159, 1);
+  --lemon: rgba(239, 239, 208, 1);
+  --azure: rgba(0, 78, 137, 1);
+  --teal: rgba(27, 153, 139, 1);
+}
