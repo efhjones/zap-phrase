@@ -4,7 +4,7 @@ import { shuffle, isEmpty } from "lodash";
 import AbortButton from "../common/Button/AbortButton";
 import Button from "../common/Button/Button";
 import Clock from "./Clock";
-import Winner from "./Winner";
+import Winner from "../Winner";
 
 import { getNextPlayer } from "../utils/gameUtils";
 
@@ -86,7 +86,10 @@ class Game extends Component {
     const { state, props } = this;
     const { currentPlayer, name, gameId } = props;
     return state.winner ? (
-      <Winner winner={state.winner} startNewGame={props.abortGame} />
+      <Winner
+        team={state.winner === "team1" ? "1" : "2"}
+        startNewGame={props.abortGame}
+      />
     ) : (
       [
         <div className="game-control">
