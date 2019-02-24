@@ -76,14 +76,22 @@
   font-size: 2vw;
   text-transform: uppercase;
   font-weight: 600;
-  width: 100%;
+  width: 40vw;
+  min-width: 150px;
   text-align: center;
+  height: 50px;
 }
 
-@media (max-width: 1000px) {
+@media (max-width: 750px) {
   .name-field {
-    font-size: 1em;
+    font-size: 15px;
   }
+}
+
+::-webkit-input-placeholder {
+  white-space: pre-line;
+  position: relative;
+  top: -5px;
 }
 
 .current-players {
