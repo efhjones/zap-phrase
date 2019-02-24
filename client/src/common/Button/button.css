@@ -7,8 +7,7 @@
   font-weight: 600;
   font-size: 2vw;
   height: 150px;
-  width: 35vw;
-  max-width: 250px;
+  width: 250px;
   cursor: pointer;
   border: none;
 }
@@ -16,6 +15,11 @@
 .small {
   height: 50px;
   width: 140px;
+}
+@media (max-width: 700px) {
+  .button {
+    width: 35vw;
+  }
 }
 
 .button:hover :not(disabled) {
@@ -31,7 +35,7 @@
     font-size: 1.5em;
   }
   .button {
-    font-size: 30px;
+    font-size: 4.5vw;
   }
 }
 
