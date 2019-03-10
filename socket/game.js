@@ -7,6 +7,14 @@ class Game {
         socket.broadcast.emit(handlers.PLAYER_ADDED, { gameId, teams });
       });
 
+      socket.on(handlers.CATEGORY_CHANGED, ({ gameId, category }) => {
+        console.log("category changed: ", gameId, category);
+        socket.broadcast.emit(handlers.CATEGORY_CHANGED, {
+          gameId,
+          category
+        });
+      });
+
       socket.on(handlers.START_GAME, game => {
         this.getPlayerLineup({ game }, ({ game, playerLineup }) => {
           io.sockets.emit(handlers.GAME_STARTED, {
