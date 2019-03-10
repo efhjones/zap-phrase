@@ -13,8 +13,8 @@ const base = new Airtable({ apiKey: AIRTABLE_KEY }).base(AIRTABLE_BASE);
 
 const getBaseUrl = req => `${req.protocol}://${req.get("Host")}`;
 
-const getPhrases = async baseUrl =>
-  await fetch(`${baseUrl}/api/phrases`)
+const getPhrases = async (baseUrl, category = "random") =>
+  await fetch(`${baseUrl}/api/phrases?category=${category}`)
     .then(res => res.json())
     .then(({ phrases }) => phrases);
 
@@ -84,6 +84,45 @@ app.get("/:code", (req, res) => {
       res.status(200).send({ game: result.record.fields });
     } else {
       res.status(404).send({ msg: "game not found", result });
+    }
+  });
+});
+
+app.post("/chooseCategory", (req, res) => {
+  findGame(req.body.gameId, async ({ record, error }) => {
+    if (error) {
+      res.status(404).send({ msg: "Unable to set category", error });
+    } else {
+      const baseUrl = getBaseUrl(req);
+      const category = {
+        Random: "random",
+        Millennials: "millennials",
+        "Plants and Animals": "plants/animals",
+        "Around the House": "around the house",
+        "Food and Drink": "food/drink",
+        Idioms: "idioms",
+        Entertainment: "entertainment",
+        "Tech and Inventions": "tech/inventions",
+        Geography: "geography"
+      }[req.body.category];
+      const categoryPhrases = await getPhrases(baseUrl, category);
+      updateGame(
+        record,
+        {
+          phrases: JSON.stringify(categoryPhrases),
+          category: req.body.category
+        },
+        result => {
+          if (result.error) {
+            res.status(409).send({
+              msg: "We ran into an error setting the category",
+              error: result.error
+            });
+          } else {
+            res.status(202).send({ game: result.record.fields });
+          }
+        }
+      );
     }
   });
 });

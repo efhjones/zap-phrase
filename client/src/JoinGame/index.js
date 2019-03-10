@@ -1,10 +1,12 @@
 // @flow
 import React, { Component, Fragment } from "react";
 import Loading from "../common/Loading";
-import Teams from "./Teams.js";
 import Button from "../common/Button/Button";
 import AsyncButton from "../common/Button/AsyncButton";
+
 import ZapPhraseTitle from "./ZapPhraseTitle";
+import Teams from "./Teams.js";
+import Categories from "./Categories";
 
 import {
   hasSufficientNumbersToPlay,
@@ -60,14 +62,14 @@ class JoinGame extends Component {
 
   render() {
     const { state, props } = this;
-    const { teams, name } = props;
+    const { teams, name, category } = props;
     const canPlay = hasSufficientNumbersToPlay(teams);
     const { canUseName, copyButtonText } = state;
     return teams.length === 0 ? (
       <Loading />
     ) : (
-      [
-        <ZapPhraseTitle />,
+      <Fragment>
+        <ZapPhraseTitle />
         <div className="vertical-section">
           <div className="invite-and-join-section">
             <div className="invite-link-section">
@@ -79,7 +81,7 @@ class JoinGame extends Component {
             </div>
             <div className="join-game-section">
               {!props.name && (
-                <form className="join-game-form">
+                <form className="join-game-form" id="join-game-form">
                   <label
                     className={`name-label vertical-section ${!canUseName &&
                       "validation-failed"}`}
@@ -118,18 +120,22 @@ class JoinGame extends Component {
                   isLoading={props.isWaiting}
                   disabled={!canPlay || props.isWaiting}
                   color={canPlay ? "green" : "stone"}
-                  onClick={props.startGame}
+                  onClick={() => props.startGame(this.state.category)}
                 >
                   {canPlay ? "start" : "need moar players"}
                 </AsyncButton>
               )}
             </div>
           </div>
+          <Categories
+            onSelectCategory={props.onSelectCategory}
+            category={category}
+          />
           <div className="current-players">
             <Teams teams={teams} name={name} />
           </div>
         </div>
-      ]
+      </Fragment>
     );
   }
 }
