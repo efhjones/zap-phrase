@@ -7,6 +7,8 @@ module.exports = {
   CHANGE_PLAYER: "change player",
   PLAYER_CHANGED: "player changed",
 
+  CATEGORY_CHANGED: "category changed",
+
   DECLARE_WINNER: "declare winner",
   WINNER_DECLARED: "winner declared",
 

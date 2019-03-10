@@ -14,7 +14,7 @@ export const prepareGameForState = game => {
     id: parsedGame.id,
     isActive: Boolean(game.isActive),
     teams: parsedGame.teams,
-    phrases: parsedGame.phrases
+    phrases: parsedGame.phrases.map(({ phrase }) => phrase)
   };
 };
 
