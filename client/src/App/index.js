@@ -44,7 +44,7 @@ class App extends Component {
 
     this.socket.on("start game", ({ gameId }) => {
       if (this.props.gameId === gameId) {
-        this.setState({ isLoading: true }, this.logState);
+        this.setState({ isLoading: true });
       }
     });
 
@@ -66,7 +66,7 @@ class App extends Component {
       }
     });
 
-    this.socket.on("game started", ({ game, playerLineup }) => {
+    this.socket.on("game started", ({ game, playerLineup, phrases }) => {
       if (game.gameId === this.state.gameId) {
         const nextPlayer = getNextPlayer(playerLineup);
         const nextPlayerTeamId = nextPlayer.teamId;
@@ -74,6 +74,7 @@ class App extends Component {
           isActive: true,
           isWaiting: false,
           currentGame: game.id,
+          phrases,
           playerLineup,
           currentPlayer: nextPlayer
         });
@@ -221,10 +222,13 @@ class App extends Component {
   };
 
   selectCategory = category => {
-    this.setState({ category });
+    this.setState({
+      category
+    });
     this.socket.emit("category changed", {
       category,
-      gameId: this.state.gameId
+      gameId: this.state.gameId,
+      isWaiting: true
     });
   };
 
@@ -236,7 +240,7 @@ class App extends Component {
       isLoading: true,
       gameId: this.state.gameId
     });
-    fetch("/api/game/startGame", {
+    fetch("/api/game/chooseCategory", {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
@@ -247,21 +251,35 @@ class App extends Component {
       })
     })
       .then(res => res.json())
-      .then(({ game }) => {
-        const { teams, isActive, id } = prepareGameForState(game);
-        this.setState({
-          teams,
-          isActive,
-          isLoading: false
-        });
-        this.socket.emit("start game", {
-          gameId: id,
-          teams
-        });
-        this.socket.emit("loading", {
-          isLoading: false,
-          gameId: this.state.gameId
-        });
+      .then(() => {
+        fetch("/api/game/startGame", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            gameId: this.state.gameId
+          })
+        })
+          .then(res => res.json())
+          .then(({ game }) => {
+            const { teams, isActive, id, phrases } = prepareGameForState(game);
+            this.setState({
+              phrases,
+              teams,
+              isActive,
+              isLoading: false
+            });
+            this.socket.emit("start game", {
+              gameId: id,
+              phrases,
+              teams
+            });
+            this.socket.emit("loading", {
+              isLoading: false,
+              gameId: this.state.gameId
+            });
+          });
       });
   };
 

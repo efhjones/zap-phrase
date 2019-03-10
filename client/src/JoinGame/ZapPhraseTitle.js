@@ -7,7 +7,6 @@ const getColor = number => {
     return getColor(number - colors.length);
   }
   const color = colors[number];
-  console.log("returning color: ", color, number);
   return color;
 };
 
