@@ -16,6 +16,7 @@ class App extends Component {
     super();
     this.state = {
       name: null,
+      category: "Random",
       teams: [],
       currentPlayer: null,
       phrases: [],
@@ -57,6 +58,12 @@ class App extends Component {
 
     this.socket.on("game joined", name => {
       this.setState({ name });
+    });
+
+    this.socket.on("category changed", ({ gameId, category }) => {
+      if (gameId === this.state.gameId) {
+        this.setState({ category });
+      }
     });
 
     this.socket.on("game started", ({ game, playerLineup }) => {
@@ -213,6 +220,14 @@ class App extends Component {
       });
   };
 
+  selectCategory = category => {
+    this.setState({ category });
+    this.socket.emit("category changed", {
+      category,
+      gameId: this.state.gameId
+    });
+  };
+
   startGame = () => {
     this.setState({
       isLoading: true
@@ -226,7 +241,10 @@ class App extends Component {
       headers: {
         "Content-Type": "application/json"
       },
-      body: JSON.stringify({ gameId: this.state.gameId })
+      body: JSON.stringify({
+        gameId: this.state.gameId,
+        category: this.state.category
+      })
     })
       .then(res => res.json())
       .then(({ game }) => {
@@ -289,15 +307,16 @@ class App extends Component {
       <Loading />
     ) : (
       <main className="container">
-        {/* {false ? ( */}
         {!state.isActive ? (
           <JoinGame
             teams={state.teams}
-            joinGame={this.joinGame}
             name={state.name}
+            isWaiting={state.isWaiting}
+            category={state.category}
+            joinGame={this.joinGame}
             socket={this.socket}
             startGame={this.startGame}
-            isWaiting={state.isWaiting}
+            onSelectCategory={this.selectCategory}
           />
         ) : (
           <Game
