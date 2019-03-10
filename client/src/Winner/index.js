@@ -17,7 +17,7 @@ const gifs = [
 const getRandomGif = () => {
   const max = gifs.length;
   const min = 0;
-  const randomIndex = Math.random() * (max - min) + min;
+  const randomIndex = Math.floor(Math.random() * (max - min) + min);
   return gifs[randomIndex];
 };
 
