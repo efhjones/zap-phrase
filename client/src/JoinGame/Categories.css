@@ -4,6 +4,7 @@
   width: 30%;
   height: 137px;
   display: flex;
+  margin: 20px auto;
 }
 
 .select {
