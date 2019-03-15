@@ -13,10 +13,13 @@ const base = new Airtable({ apiKey: AIRTABLE_KEY }).base(AIRTABLE_BASE);
 
 const getBaseUrl = req => `${req.protocol}://${req.get("Host")}`;
 
-const getPhrases = async (baseUrl, category = "random") =>
-  await fetch(`${baseUrl}/api/phrases?category=${category}`)
+const getPhrases = async (baseUrl, category) => {
+  const maybeCategory = category ? `?category=${category}` : "";
+  const url = `${baseUrl}/api/phrases${maybeCategory}`;
+  return await fetch(url)
     .then(res => res.json())
     .then(({ phrases }) => phrases);
+};
 
 const createGame = (gameCode, phrases, done) => {
   base("games").create(
@@ -95,7 +98,7 @@ app.post("/chooseCategory", (req, res) => {
     } else {
       const baseUrl = getBaseUrl(req);
       const category = {
-        Random: "random",
+        Random: null,
         Millennials: "millennials",
         "Plants and Animals": "plants/animals",
         "Around the House": "around the house",
