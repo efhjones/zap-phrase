@@ -14,8 +14,13 @@ app.get("/", (req, res) => {
       (records, fetchNextPage) => {
         records.forEach(function(record) {
           const phrase = record.get("phrase");
-          const category = record.get("category");
-          if (phrase && category === req.query.category) {
+          const category = req.body.category ? record.get("category") : null;
+          const shouldFilterbyCategory = Boolean(category);
+          if (
+            phrase && shouldFilterbyCategory
+              ? category === req.query.category
+              : true
+          ) {
             phrases = phrases.concat({ phrase, category });
           }
         });
