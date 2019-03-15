@@ -1,0 +1,18 @@
+@import "../common/Styles.css";
+
+.guess {
+  -webkit-animation: pulsate 3s ease-in-out;
+  -webkit-animation-iteration-count: infinite;
+  color: var(--green);
+}
+@-webkit-keyframes pulsate {
+  0% {
+    font-size: 1em;
+  }
+  50% {
+    font-size: 1.3em;
+  }
+  100% {
+    font-size: 1em;
+  }
+}

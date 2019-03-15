@@ -5,16 +5,12 @@ import AbortButton from "../common/Button/AbortButton";
 import Button from "../common/Button/Button";
 import Clock from "./Clock";
 import Winner from "../Winner";
+import Guess from "./Guess";
+import Shh from "./Shh";
 
-import { getNextPlayer } from "../utils/gameUtils";
+import { getNextPlayer, shouldGuessForOppositeTeam } from "../utils/gameUtils";
 
 import "./styles.css";
-// baby workflow;
-//  start with list of players on different teams
-//  pick a phrase
-//  pick a next person
-//  send only that person the phrase?
-//  When that person hits next, choose the next person and next phrase
 
 class Game extends Component {
   constructor(props) {
@@ -82,6 +78,24 @@ class Game extends Component {
     });
   };
 
+  shouldGuess = () => {
+    const {
+      teams,
+      teamId,
+      currentPlayerTeamId,
+      currentPlayer,
+      name
+    } = this.props;
+    debugger;
+    if (currentPlayer === name) {
+      return false;
+    } else if (teamId === currentPlayerTeamId) {
+      return currentPlayer !== name;
+    } else {
+      return shouldGuessForOppositeTeam(teams);
+    }
+  };
+
   render() {
     const { state, props } = this;
     const { currentPlayer, name, gameId } = props;
@@ -105,7 +119,7 @@ class Game extends Component {
           <section className="vertical-section">
             <span className="player-heading">Current Player:</span>
             <span className="player-name">
-              {currentPlayer && currentPlayer.name}
+              {this.shouldGuess() ? <Guess /> : <Shh />}
             </span>
           </section>
           {currentPlayer && currentPlayer.name === name && (
