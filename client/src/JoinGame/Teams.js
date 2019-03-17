@@ -13,8 +13,13 @@ const Teams = ({ teams, name }) => {
             <ul className="team-members">
               {team.players.map((player, i) => {
                 return (
-                  <li key={`${player.id}${i}`} className="team-member">
-                    {player.name} {player.name === name && "-- that's you!"}
+                  <li
+                    key={`${player.id}${i}`}
+                    className={`team-member ${
+                      player.name === name ? "is-me" : ""
+                    }`}
+                  >
+                    {player.name}
                   </li>
                 );
               })}
