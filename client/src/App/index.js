@@ -59,9 +59,9 @@ class App extends Component {
       this.setState({ name });
     });
 
-    this.socket.on("category changed", ({ gameId, category }) => {
+    this.socket.on("category changed", ({ gameId, category, isWaiting }) => {
       if (gameId === this.state.gameId) {
-        this.setState({ category });
+        this.setState({ category, isWaiting });
       }
     });
 
@@ -170,12 +170,13 @@ class App extends Component {
         .then(({ game }) => {
           if (game) {
             const preparedGame = prepareGameForState(game);
-            const { id, phrases, teams, isActive } = preparedGame;
+            const { id, phrases, teams, isActive, category } = preparedGame;
             const allPlayers = getAllPlayersInTeams(teams);
             this.socket.emit("update socket ids", { allPlayers, gameId: id });
             this.setState({
               isLoading: false,
               gameId: id,
+              category,
               phrases,
               teams,
               isActive
@@ -224,7 +225,8 @@ class App extends Component {
 
   selectCategory = category => {
     this.setState({
-      category
+      category,
+      isWaiting: true
     });
     this.socket.emit("category changed", {
       category,
