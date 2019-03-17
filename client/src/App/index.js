@@ -59,9 +59,9 @@ class App extends Component {
       this.setState({ name });
     });
 
-    this.socket.on("category changed", ({ gameId, category }) => {
+    this.socket.on("category changed", ({ gameId, category, isWaiting }) => {
       if (gameId === this.state.gameId) {
-        this.setState({ category });
+        this.setState({ category, isWaiting });
       }
     });
 
@@ -170,12 +170,13 @@ class App extends Component {
         .then(({ game }) => {
           if (game) {
             const preparedGame = prepareGameForState(game);
-            const { id, phrases, teams, isActive } = preparedGame;
+            const { id, phrases, teams, isActive, category } = preparedGame;
             const allPlayers = getAllPlayersInTeams(teams);
             this.socket.emit("update socket ids", { allPlayers, gameId: id });
             this.setState({
               isLoading: false,
               gameId: id,
+              category,
               phrases,
               teams,
               isActive
@@ -224,12 +225,32 @@ class App extends Component {
 
   selectCategory = category => {
     this.setState({
-      category
+      category,
+      isWaiting: true
     });
     this.socket.emit("category changed", {
       category,
       gameId: this.state.gameId,
       isWaiting: true
+    });
+    fetch("/api/game/chooseCategory", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        gameId: this.state.gameId,
+        category
+      })
+    }).then(() => {
+      this.setState({
+        isWaiting: false
+      });
+      this.socket.emit("category changed", {
+        category,
+        gameId: this.state.gameId,
+        isWaiting: false
+      });
     });
   };
 
@@ -241,46 +262,34 @@ class App extends Component {
       isLoading: true,
       gameId: this.state.gameId
     });
-    fetch("/api/game/chooseCategory", {
+
+    fetch("/api/game/startGame", {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        gameId: this.state.gameId,
-        category: this.state.category
+        gameId: this.state.gameId
       })
     })
       .then(res => res.json())
-      .then(() => {
-        fetch("/api/game/startGame", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({
-            gameId: this.state.gameId
-          })
-        })
-          .then(res => res.json())
-          .then(({ game }) => {
-            const { teams, isActive, id, phrases } = prepareGameForState(game);
-            this.setState({
-              phrases,
-              teams,
-              isActive,
-              isLoading: false
-            });
-            this.socket.emit("start game", {
-              gameId: id,
-              phrases,
-              teams
-            });
-            this.socket.emit("loading", {
-              isLoading: false,
-              gameId: this.state.gameId
-            });
-          });
+      .then(({ game }) => {
+        const { teams, isActive, id, phrases } = prepareGameForState(game);
+        this.setState({
+          phrases,
+          teams,
+          isActive,
+          isLoading: false
+        });
+        this.socket.emit("start game", {
+          gameId: id,
+          phrases,
+          teams
+        });
+        this.socket.emit("loading", {
+          isLoading: false,
+          gameId: this.state.gameId
+        });
       });
   };
 

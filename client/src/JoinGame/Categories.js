@@ -17,7 +17,7 @@ const Categories = ({ onSelectCategory, category }) => {
         value={category}
       >
         <option value="Random">Random</option>
-        <option value="Millenials">Millenials</option>
+        <option value="Millennials">Millennials</option>
         <option value="Around the House">Around the House</option>
         <option value="Food and Drink">Food and Drink</option>
         <option value="Plants and Animals">Plants and Animals</option>

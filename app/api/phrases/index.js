@@ -14,15 +14,16 @@ app.get("/", (req, res) => {
       (records, fetchNextPage) => {
         records.forEach(function(record) {
           const phrase = record.get("phrase");
-          const category = req.body.category ? record.get("category") : null;
-          const shouldFilterbyCategory = Boolean(category);
-          if (
-            phrase && shouldFilterbyCategory
-              ? category === req.query.category
-              : true
-          ) {
-            phrases = phrases.concat({ phrase, category });
-          }
+          const queryCategory = req.query.category;
+          const recordCategory = record.get("category");
+          const shouldFilterbyCategory = Boolean(queryCategory);
+          const shouldAddToPhrases = shouldFilterbyCategory
+            ? recordCategory === queryCategory
+            : true;
+          phrases =
+            shouldAddToPhrases && phrase
+              ? phrases.concat({ phrase, recordCategory })
+              : phrases;
         });
         fetchNextPage();
       },
