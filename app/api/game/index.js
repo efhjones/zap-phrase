@@ -96,23 +96,9 @@ app.post("/chooseCategory", (req, res) => {
     if (error) {
       res.status(404).send({ msg: "Unable to set category", error });
     } else {
-      const baseUrl = getBaseUrl(req);
-      const category = {
-        Random: null,
-        Millennials: "millennials",
-        "Plants and Animals": "plants/animals",
-        "Around the House": "around the house",
-        "Food and Drink": "food/drink",
-        Idioms: "idioms",
-        Entertainment: "entertainment",
-        "Tech and Inventions": "tech/inventions",
-        Geography: "geography"
-      }[req.body.category];
-      const categoryPhrases = await getPhrases(baseUrl, category);
       updateGame(
         record,
         {
-          phrases: JSON.stringify(categoryPhrases),
           category: req.body.category
         },
         result => {
@@ -131,14 +117,29 @@ app.post("/chooseCategory", (req, res) => {
 });
 
 app.post("/startGame", (req, res) => {
-  findGame(req.body.gameId, ({ record, error }) => {
+  findGame(req.body.gameId, async ({ record, error }) => {
     if (error) {
       res.status(404).send({ msg: "game not found", error });
     } else {
+      const baseUrl = getBaseUrl(req);
+      const recordCategory = record.get("category");
+      const category = {
+        Random: null,
+        Millennials: "millennials",
+        "Plants and Animals": "plants/animals",
+        "Around the House": "around the house",
+        "Food and Drink": "food/drink",
+        Idioms: "idioms",
+        Entertainment: "entertainment",
+        "Tech and Inventions": "tech/inventions",
+        Geography: "geography"
+      }[recordCategory];
+      const categoryPhrases = await getPhrases(baseUrl, category);
       updateGame(
         record,
         {
-          isActive: true
+          isActive: true,
+          phrases: JSON.stringify(categoryPhrases)
         },
         result => {
           if (result.error) {

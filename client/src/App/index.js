@@ -233,6 +233,25 @@ class App extends Component {
       gameId: this.state.gameId,
       isWaiting: true
     });
+    fetch("/api/game/chooseCategory", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        gameId: this.state.gameId,
+        category
+      })
+    }).then(() => {
+      this.setState({
+        isWaiting: false
+      });
+      this.socket.emit("category changed", {
+        category,
+        gameId: this.state.gameId,
+        isWaiting: false
+      });
+    });
   };
 
   startGame = () => {
@@ -243,46 +262,34 @@ class App extends Component {
       isLoading: true,
       gameId: this.state.gameId
     });
-    fetch("/api/game/chooseCategory", {
+
+    fetch("/api/game/startGame", {
       method: "POST",
       headers: {
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        gameId: this.state.gameId,
-        category: this.state.category
+        gameId: this.state.gameId
       })
     })
       .then(res => res.json())
-      .then(() => {
-        fetch("/api/game/startGame", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({
-            gameId: this.state.gameId
-          })
-        })
-          .then(res => res.json())
-          .then(({ game }) => {
-            const { teams, isActive, id, phrases } = prepareGameForState(game);
-            this.setState({
-              phrases,
-              teams,
-              isActive,
-              isLoading: false
-            });
-            this.socket.emit("start game", {
-              gameId: id,
-              phrases,
-              teams
-            });
-            this.socket.emit("loading", {
-              isLoading: false,
-              gameId: this.state.gameId
-            });
-          });
+      .then(({ game }) => {
+        const { teams, isActive, id, phrases } = prepareGameForState(game);
+        this.setState({
+          phrases,
+          teams,
+          isActive,
+          isLoading: false
+        });
+        this.socket.emit("start game", {
+          gameId: id,
+          phrases,
+          teams
+        });
+        this.socket.emit("loading", {
+          isLoading: false,
+          gameId: this.state.gameId
+        });
       });
   };
 

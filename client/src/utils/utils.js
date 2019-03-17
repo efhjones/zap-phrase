@@ -4,7 +4,8 @@ const parseGame = game => {
   return {
     id: game.id,
     teams: JSON.parse(teams),
-    phrases: JSON.parse(phrases)
+    phrases: JSON.parse(phrases),
+    category: game.category
   };
 };
 
@@ -14,7 +15,8 @@ export const prepareGameForState = game => {
     id: parsedGame.id,
     isActive: Boolean(game.isActive),
     teams: parsedGame.teams,
-    phrases: parsedGame.phrases.map(({ phrase }) => phrase)
+    phrases: parsedGame.phrases.map(({ phrase }) => phrase),
+    category: parsedGame.category
   };
 };
 
