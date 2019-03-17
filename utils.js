@@ -31,12 +31,17 @@ const addPlayerToTeam = ({ teams, name, socketId }) => {
     ...assignedTeam,
     players: [...assignedTeam.players, player]
   };
-  return teams.map(team => {
+  const newTeams = teams.map(team => {
     if (team.id === assignedTeam.id) {
       return newTeam;
     }
     return team;
   });
+  const value = {
+    teams: newTeams,
+    player
+  };
+  return value;
 };
 
 const removePlayerfromTeam = ({ teams, playerName }) => {
