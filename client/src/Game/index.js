@@ -5,16 +5,13 @@ import AbortButton from "../common/Button/AbortButton";
 import Button from "../common/Button/Button";
 import Clock from "./Clock";
 import Winner from "../Winner";
+import Guess from "./Guess";
+import Shh from "./Shh";
+import PlayerLineup from "./PlayerLineup";
 
-import { getNextPlayer } from "../utils/gameUtils";
+import { getNextPlayer, shouldGuessForOppositeTeam } from "../utils/gameUtils";
 
 import "./styles.css";
-// baby workflow;
-//  start with list of players on different teams
-//  pick a phrase
-//  pick a next person
-//  send only that person the phrase?
-//  When that person hits next, choose the next person and next phrase
 
 class Game extends Component {
   constructor(props) {
@@ -82,16 +79,29 @@ class Game extends Component {
     });
   };
 
+  shouldGuess = () => {
+    const { teams, teamId, currentPlayer, name } = this.props;
+    if (currentPlayer && currentPlayer.name === name) {
+      return false;
+    } else if (currentPlayer && teamId === currentPlayer.teamId) {
+      return true;
+    } else {
+      return shouldGuessForOppositeTeam(teams);
+    }
+  };
+
   render() {
     const { state, props } = this;
-    const { currentPlayer, name, gameId } = props;
+    const { currentPlayer, name, gameId, playerLineup = [] } = props;
+    const isCurrentPlayer = currentPlayer && currentPlayer.name === name;
+    const shouldGuess = this.shouldGuess();
     return state.winner ? (
       <Winner
         team={state.winner === "team1" ? "1" : "2"}
         startNewGame={props.abortGame}
       />
     ) : (
-      [
+      <>
         <div className="game-control">
           {props.isActive && (
             <AbortButton
@@ -100,16 +110,20 @@ class Game extends Component {
             />
           )}
           <Clock socket={props.socket} gameId={gameId} key="clock" />
-        </div>,
+        </div>
+        <PlayerLineup
+          playerLineup={playerLineup}
+          currentPlayer={currentPlayer}
+        />
         <div className="vertical-section" key="game">
           <section className="vertical-section">
-            <span className="player-heading">Current Player:</span>
             <span className="player-name">
-              {currentPlayer && currentPlayer.name}
+              {shouldGuess && <Guess />}
+              {!isCurrentPlayer && !shouldGuess && <Shh />}
             </span>
           </section>
-          {currentPlayer && currentPlayer.name === name && (
-            <div>
+          {isCurrentPlayer && (
+            <>
               <section className="vertical-section">
                 <span className="phrase">{state.currentPhrase}</span>
               </section>
@@ -133,10 +147,10 @@ class Game extends Component {
                   Next
                 </Button>
               </section>
-            </div>
+            </>
           )}
         </div>
-      ]
+      </>
     );
   }
 }

@@ -17,7 +17,7 @@ export const getNextPlayer = (lineup, currentPlayer) => {
   }
 };
 
-const getAllPlayersInTeams = teams => {
+export const getAllPlayersInTeams = teams => {
   return flatten(teams.map(team => team.players));
 };
 
@@ -33,4 +33,14 @@ const getAllNamesInTeams = flowRight(
 export const isNameAvailable = (teams, name = "") => {
   const allPlayerNames = getAllNamesInTeams(teams);
   return !includes(allPlayerNames, name);
+};
+
+const getNumberOfPlayersPerTeam = teams => {
+  const playersPerTeam = teams.map(team => team.players);
+  return [playersPerTeam[0].length, playersPerTeam[1].length];
+};
+
+export const shouldGuessForOppositeTeam = teams => {
+  const [playersOnTeam1, playersOnTeam2] = getNumberOfPlayersPerTeam(teams);
+  return playersOnTeam1 < 2 || playersOnTeam2 < 2;
 };

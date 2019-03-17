@@ -185,7 +185,7 @@ app.post("/addPlayer", (req, res) => {
     if (error) {
       res.status(404).send({ msg: "game not found", error });
     } else {
-      const newTeams = addPlayerToTeam({
+      const { teams, player } = addPlayerToTeam({
         teams: JSON.parse(record.fields.teams),
         name: req.body.name,
         socketId: req.body.socketId
@@ -193,7 +193,7 @@ app.post("/addPlayer", (req, res) => {
       updateGame(
         record,
         {
-          teams: JSON.stringify(newTeams)
+          teams: JSON.stringify(teams)
         },
         result => {
           if (result.error) {
@@ -202,7 +202,7 @@ app.post("/addPlayer", (req, res) => {
               error: result.error
             });
           } else {
-            res.status(202).send({ game: result.record.fields });
+            res.status(202).send({ game: result.record.fields, player });
           }
         }
       );

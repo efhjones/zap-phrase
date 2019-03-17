@@ -1,5 +1,5 @@
 // @flow
-import React, { Component, Fragment } from "react";
+import React, { Component } from "react";
 import Loading from "../common/Loading";
 import Button from "../common/Button/Button";
 import AsyncButton from "../common/Button/AsyncButton";
@@ -34,7 +34,8 @@ class JoinGame extends Component {
     });
   };
 
-  joinGame = () => {
+  joinGame = e => {
+    e.preventDefault();
     this.props.joinGame(this.state.name);
     this.setState({
       name: ""
@@ -68,7 +69,7 @@ class JoinGame extends Component {
     return teams.length === 0 ? (
       <Loading />
     ) : (
-      <Fragment>
+      <>
         <ZapPhraseTitle />
         <div className="vertical-section">
           <div className="invite-and-join-section">
@@ -87,10 +88,10 @@ class JoinGame extends Component {
                       "validation-failed"}`}
                   >
                     {!canUseName && (
-                      <Fragment>
+                      <>
                         <span>Sorry, that name’s taken.</span>
                         <span>Choose another?</span>
-                      </Fragment>
+                      </>
                     )}
                     <input
                       className="name-field"
@@ -135,7 +136,7 @@ class JoinGame extends Component {
             <Teams teams={teams} name={name} />
           </div>
         </div>
-      </Fragment>
+      </>
     );
   }
 }

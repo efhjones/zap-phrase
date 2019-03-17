@@ -170,6 +170,10 @@
   color: black;
 }
 
+.team-member.is-me {
+  color: var(--green);
+}
+
 .orange-text {
   color: var(--orange);
 }
