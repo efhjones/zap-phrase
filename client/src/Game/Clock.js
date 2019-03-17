@@ -131,7 +131,10 @@ class Clock extends Component {
           {[team1, team2].map((team, i) => {
             const isActiveTeam = `team${i + 1}` === this.state.activeTeam;
             return (
-              <div className={`timer ${isActiveTeam ? "isActive" : ""}`}>
+              <div
+                className={`timer ${isActiveTeam ? "isActive" : ""}`}
+                key={"team" + i}
+              >
                 <span>Team {i + 1}</span>
                 <span>{team}</span>
               </div>
