@@ -42,5 +42,5 @@ const getNumberOfPlayersPerTeam = teams => {
 
 export const shouldGuessForOppositeTeam = teams => {
   const [playersOnTeam1, playersOnTeam2] = getNumberOfPlayersPerTeam(teams);
-  return playersOnTeam1 < 2 && playersOnTeam2 < 2;
+  return playersOnTeam1 < 2 || playersOnTeam2 < 2;
 };
