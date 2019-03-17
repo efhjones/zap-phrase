@@ -86,8 +86,7 @@ class Game extends Component {
       currentPlayer,
       name
     } = this.props;
-    debugger;
-    if (currentPlayer === name) {
+    if (currentPlayer && currentPlayer.name === name) {
       return false;
     } else if (teamId === currentPlayerTeamId) {
       return currentPlayer !== name;
