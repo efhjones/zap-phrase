@@ -76,8 +76,7 @@ class App extends Component {
           currentGame: game.id,
           phrases,
           playerLineup,
-          currentPlayer: nextPlayer,
-          currentPlayerTeamId: nextPlayerTeamId
+          currentPlayer: nextPlayer
         });
         this.socket.emit("start clock", {
           teamId: nextPlayerTeamId,
@@ -346,7 +345,6 @@ class App extends Component {
             teams={state.teams}
             gameId={this.state.gameId}
             teamId={this.state.teamId}
-            currentPlayerTeamId={state.currentPlayerTeamId}
             currentPlayer={state.currentPlayer}
             name={state.name}
             playerLineup={state.playerLineup}

@@ -79,17 +79,11 @@ class Game extends Component {
   };
 
   shouldGuess = () => {
-    const {
-      teams,
-      teamId,
-      currentPlayerTeamId,
-      currentPlayer,
-      name
-    } = this.props;
+    const { teams, teamId, currentPlayer, name } = this.props;
     if (currentPlayer && currentPlayer.name === name) {
       return false;
-    } else if (teamId === currentPlayerTeamId) {
-      return currentPlayer !== name;
+    } else if (currentPlayer && teamId === currentPlayer.teamId) {
+      return true;
     } else {
       return shouldGuessForOppositeTeam(teams);
     }
@@ -98,6 +92,8 @@ class Game extends Component {
   render() {
     const { state, props } = this;
     const { currentPlayer, name, gameId } = props;
+    const isCurrentPlayer = currentPlayer && currentPlayer.name === name;
+    const shouldGuess = this.shouldGuess();
     return state.winner ? (
       <Winner
         team={state.winner === "team1" ? "1" : "2"}
@@ -116,12 +112,12 @@ class Game extends Component {
         </div>,
         <div className="vertical-section" key="game">
           <section className="vertical-section">
-            <span className="player-heading">Current Player:</span>
             <span className="player-name">
-              {this.shouldGuess() ? <Guess /> : <Shh />}
+              {shouldGuess && <Guess />}
+              {!isCurrentPlayer && !shouldGuess && <Shh />}
             </span>
           </section>
-          {currentPlayer && currentPlayer.name === name && (
+          {isCurrentPlayer && (
             <div>
               <section className="vertical-section">
                 <span className="phrase">{state.currentPhrase}</span>
