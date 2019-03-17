@@ -17,7 +17,7 @@ export const getNextPlayer = (lineup, currentPlayer) => {
   }
 };
 
-const getAllPlayersInTeams = teams => {
+export const getAllPlayersInTeams = teams => {
   return flatten(teams.map(team => team.players));
 };
 

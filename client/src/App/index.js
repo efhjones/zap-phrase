@@ -6,7 +6,7 @@ import Game from "../Game";
 import JoinGame from "../JoinGame";
 import Loading from "../common/Loading";
 
-import { getNextPlayer } from "../utils/gameUtils";
+import { getNextPlayer, getAllPlayersInTeams } from "../utils/gameUtils";
 import { prepareGameForState } from "../utils/utils.js";
 
 import "./styles.css";
@@ -86,7 +86,7 @@ class App extends Component {
     });
 
     this.socket.on("refresh teams", () => {
-      const allPlayers = flatten(this.state.teams.map(team => team.players));
+      const allPlayers = getAllPlayersInTeams(this.state.teams);
       this.socket.emit("update socket ids", {
         allPlayers,
         gameId: this.state.gameId
@@ -172,7 +172,7 @@ class App extends Component {
           if (game) {
             const preparedGame = prepareGameForState(game);
             const { id, phrases, teams, isActive } = preparedGame;
-            const allPlayers = flatten(teams.map(team => team.players));
+            const allPlayers = getAllPlayersInTeams(teams);
             this.socket.emit("update socket ids", { allPlayers, gameId: id });
             this.setState({
               isLoading: false,
