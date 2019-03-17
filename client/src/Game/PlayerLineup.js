@@ -22,6 +22,7 @@ const PlayerLineup = ({ playerLineup, currentPlayer }) => {
       <div className="player-spinner" style={{ top: `${offset}px` }}>
         {playerLineup.map((player, i) => (
           <Player
+            key={player.name + i}
             name={player.name}
             isCurrentPlayer={
               currentPlayer && currentPlayer.name === player.name
