@@ -100,7 +100,7 @@ class Game extends Component {
         startNewGame={props.abortGame}
       />
     ) : (
-      [
+      <>
         <div className="game-control">
           {props.isActive && (
             <AbortButton
@@ -109,7 +109,7 @@ class Game extends Component {
             />
           )}
           <Clock socket={props.socket} gameId={gameId} key="clock" />
-        </div>,
+        </div>
         <div className="vertical-section" key="game">
           <section className="vertical-section">
             <span className="player-name">
@@ -145,7 +145,7 @@ class Game extends Component {
             </>
           )}
         </div>
-      ]
+      </>
     );
   }
 }
