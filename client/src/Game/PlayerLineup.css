@@ -1,10 +1,25 @@
 @import "../common/Styles.css";
 
+.player-lineup {
+  height: 135px;
+  width: 236px;
+  position: relative;
+  overflow: hidden;
+}
+
+.player-spinner {
+  position: absolute;
+  transition: all 1s ease-in-out;
+}
+
 .player-in-lineup {
   text-transform: uppercase;
   font-weight: 600;
+  font-size: 1em;
+  height: 30px;
 }
 
 .player-in-lineup.isCurrentPlayer {
   color: var(--green);
+  font-size: 1.5em;
 }
