@@ -76,7 +76,8 @@ class App extends Component {
           currentGame: game.id,
           phrases,
           playerLineup,
-          currentPlayer: nextPlayer
+          currentPlayer: nextPlayer,
+          currentPlayerTeamId: nextPlayerTeamId
         });
         this.socket.emit("start clock", {
           teamId: nextPlayerTeamId,
@@ -205,10 +206,12 @@ class App extends Component {
       })
     })
       .then(res => res.json())
-      .then(({ game }) => {
+      .then(response => {
+        const { game, player } = response;
         const preparedGame = prepareGameForState(game);
         this.setState({
           gameId: game.id,
+          teamId: player.teamId,
           name,
           teams: preparedGame.teams,
           isActive: preparedGame.isActive,
@@ -342,6 +345,8 @@ class App extends Component {
             phrases={this.state.phrases}
             teams={state.teams}
             gameId={this.state.gameId}
+            teamId={this.state.teamId}
+            currentPlayerTeamId={state.currentPlayerTeamId}
             currentPlayer={state.currentPlayer}
             name={state.name}
             playerLineup={state.playerLineup}
