@@ -1,6 +1,5 @@
 import React, { Component } from "react";
 import socketIOClient from "socket.io-client";
-import { flatten } from "lodash";
 
 import Game from "../Game";
 import JoinGame from "../JoinGame";
