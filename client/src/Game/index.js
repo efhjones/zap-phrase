@@ -7,6 +7,7 @@ import Clock from "./Clock";
 import Winner from "../Winner";
 import Guess from "./Guess";
 import Shh from "./Shh";
+import PlayerLineup from "./PlayerLineup";
 
 import { getNextPlayer, shouldGuessForOppositeTeam } from "../utils/gameUtils";
 
@@ -91,7 +92,7 @@ class Game extends Component {
 
   render() {
     const { state, props } = this;
-    const { currentPlayer, name, gameId } = props;
+    const { currentPlayer, name, gameId, playerLineup = [] } = props;
     const isCurrentPlayer = currentPlayer && currentPlayer.name === name;
     const shouldGuess = this.shouldGuess();
     return state.winner ? (
@@ -110,6 +111,10 @@ class Game extends Component {
           )}
           <Clock socket={props.socket} gameId={gameId} key="clock" />
         </div>
+        <PlayerLineup
+          playerLineup={playerLineup}
+          currentPlayer={currentPlayer}
+        />
         <div className="vertical-section" key="game">
           <section className="vertical-section">
             <span className="player-name">

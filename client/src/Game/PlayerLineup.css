@@ -1,0 +1,10 @@
+@import "../common/Styles.css";
+
+.player-in-lineup {
+  text-transform: uppercase;
+  font-weight: 600;
+}
+
+.player-in-lineup.isCurrentPlayer {
+  color: var(--green);
+}
