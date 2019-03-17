@@ -118,7 +118,7 @@ class Game extends Component {
             </span>
           </section>
           {isCurrentPlayer && (
-            <div>
+            <>
               <section className="vertical-section">
                 <span className="phrase">{state.currentPhrase}</span>
               </section>
@@ -142,7 +142,7 @@ class Game extends Component {
                   Next
                 </Button>
               </section>
-            </div>
+            </>
           )}
         </div>
       ]
