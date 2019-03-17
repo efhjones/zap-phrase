@@ -34,7 +34,8 @@ class JoinGame extends Component {
     });
   };
 
-  joinGame = () => {
+  joinGame = e => {
+    e.preventDefault();
     this.props.joinGame(this.state.name);
     this.setState({
       name: ""
