@@ -68,10 +68,6 @@ class Game extends Component {
       remainingPhrases.shift();
     }
     const nextPhrase = remainingPhrases.shift();
-    this.setState({
-      nextPhrase,
-      remainingPhrases
-    });
     this.props.socket.emit("change phrase", {
       gameId: this.props.gameId,
       nextPhrase,
