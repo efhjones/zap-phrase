@@ -1,10 +1,12 @@
 const app = require("express")();
 const Airtable = require("airtable");
-const { AIRTABLE_KEY, AIRTABLE_BASE } = require("../../../constants.js");
+const { AIRTABLE_KEY, CATEGORY_BASES } = require("../../../constants.js");
 
-const base = new Airtable({ apiKey: AIRTABLE_KEY }).base(AIRTABLE_BASE);
+const getBaseCodeForCategory = category => CATEGORY_BASES[category];
 
-app.get("/", (req, res) => {
+const getPhrasesForCategory = (category, done) => {
+  const baseCode = getBaseCodeForCategory(category);
+  const base = new Airtable({ apiKey: AIRTABLE_KEY }).base(baseCode);
   let phrases = [];
   base("phrases")
     .select({
@@ -14,27 +16,39 @@ app.get("/", (req, res) => {
       (records, fetchNextPage) => {
         records.forEach(function(record) {
           const phrase = record.get("phrase");
-          const queryCategory = req.query.category;
-          const recordCategory = record.get("category");
-          const shouldFilterbyCategory = Boolean(queryCategory);
-          const shouldAddToPhrases = shouldFilterbyCategory
-            ? recordCategory === queryCategory
-            : true;
-          phrases =
-            shouldAddToPhrases && phrase
-              ? phrases.concat({ phrase, recordCategory })
-              : phrases;
+          phrases = phrase ? phrases.concat({ phrase }) : phrases;
         });
         fetchNextPage();
       },
       err => {
-        if (err) {
-          console.error(err);
-          return;
-        }
-        res.status(200).send({ phrases });
+        done(err, phrases);
       }
     );
+};
+
+const getPhrases = (categoryArray, phrases = [], done) => {
+  if (categoryArray.length === 0) {
+    done(null, phrases);
+  } else {
+    const nextCategory = categoryArray[0];
+    const newCategoryArray = categoryArray.slice(1);
+    getPhrasesForCategory(nextCategory, (err, categoryPhrases) => {
+      getPhrases(newCategoryArray, phrases.concat(categoryPhrases), done);
+    });
+  }
+};
+
+app.get("/", (req, res) => {
+  const categories = req.query.categories.split(",");
+  getPhrases(categories, [], (err, phrases) => {
+    if (err) {
+      res
+        .status(400)
+        .send({ msg: "We ran into a problem getting phrases", err });
+    } else {
+      res.status(200).send(phrases);
+    }
+  });
 });
 
 module.exports = app;

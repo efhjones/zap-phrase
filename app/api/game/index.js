@@ -7,26 +7,29 @@ const {
   removePlayerfromTeam
 } = require("../../../utils.js");
 
-const { AIRTABLE_KEY, AIRTABLE_BASE } = require("../../../constants.js");
+const { AIRTABLE_KEY, AIRTABLE_GAMES_BASE } = require("../../../constants.js");
 
-const base = new Airtable({ apiKey: AIRTABLE_KEY }).base(AIRTABLE_BASE);
+const base = new Airtable({ apiKey: AIRTABLE_KEY }).base(AIRTABLE_GAMES_BASE);
 
 const getBaseUrl = req => `${req.protocol}://${req.get("Host")}`;
 
-const getPhrases = async (baseUrl, category) => {
-  const maybeCategory = category ? `?category=${category}` : "";
+const getPhrases = async (baseUrl, categories) => {
+  const categoryString = categories.join(",");
+  const maybeCategory =
+    categoryString.length > 0 ? `?categories=${categoryString}` : "";
   const url = `${baseUrl}/api/phrases${maybeCategory}`;
   return await fetch(url)
     .then(res => res.json())
-    .then(({ phrases }) => phrases);
+    .then(phrases => phrases);
 };
 
-const createGame = (gameCode, phrases, done) => {
+const createGame = (gameCode, phrases = {}, done) => {
   base("games").create(
     {
       id: `${gameCode}`,
       teams: JSON.stringify([{ id: 1, players: [] }, { id: 2, players: [] }]),
-      phrases: JSON.stringify(phrases)
+      phrases: JSON.stringify(phrases),
+      category: "Random"
     },
     done
   );
@@ -67,10 +70,8 @@ const findGame = (gameCode, done) => {
 };
 
 app.get("/", async (req, res) => {
-  const baseUrl = getBaseUrl(req);
-  const phrases = await getPhrases(baseUrl);
   const gameCode = createGameId();
-  createGame(gameCode, phrases, (err, record) => {
+  createGame(gameCode, [], (err, record) => {
     if (err) {
       res.status(400).send({ msg: err });
     }
@@ -81,12 +82,10 @@ app.get("/", async (req, res) => {
 app.get("/:code", (req, res) => {
   const gameCode = req.params.code;
   findGame(gameCode, result => {
-    if (!result.error && !result.record) {
-      res.status(404).send({ msg: result.error });
-    } else if (result.record) {
-      res.status(200).send({ game: result.record.fields });
-    } else {
+    if (result.error || !result.record) {
       res.status(404).send({ msg: "game not found", result });
+    } else {
+      res.status(200).send({ game: result.record.fields });
     }
   });
 });
@@ -123,8 +122,7 @@ app.post("/startGame", (req, res) => {
     } else {
       const baseUrl = getBaseUrl(req);
       const recordCategory = record.get("category");
-      const category = {
-        Random: null,
+      const categories = {
         Millennials: "millennials",
         "Plants and Animals": "plants/animals",
         "Around the House": "around the house",
@@ -133,8 +131,14 @@ app.post("/startGame", (req, res) => {
         Entertainment: "entertainment",
         "Tech and Inventions": "tech/inventions",
         Geography: "geography"
-      }[recordCategory];
-      const categoryPhrases = await getPhrases(baseUrl, category);
+      };
+
+      const chosenCategories =
+        recordCategory === "Random"
+          ? Object.values(categories)
+          : [categories[recordCategory]];
+
+      const categoryPhrases = await getPhrases(baseUrl, chosenCategories);
       updateGame(
         record,
         {

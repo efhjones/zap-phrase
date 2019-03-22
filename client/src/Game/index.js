@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { shuffle, isEmpty } from "lodash";
+import { shuffle, isEmpty, once } from "lodash";
 
 import AbortButton from "../common/Button/AbortButton";
 import Button from "../common/Button/Button";
@@ -68,10 +68,6 @@ class Game extends Component {
       remainingPhrases.shift();
     }
     const nextPhrase = remainingPhrases.shift();
-    this.setState({
-      nextPhrase,
-      remainingPhrases
-    });
     this.props.socket.emit("change phrase", {
       gameId: this.props.gameId,
       nextPhrase,
@@ -88,6 +84,12 @@ class Game extends Component {
     } else {
       return shouldGuessForOppositeTeam(teams);
     }
+  };
+
+  onClickNext = e => {
+    e.persist();
+    this.setNextPhrase();
+    this.setNextPlayer();
   };
 
   render() {
@@ -129,21 +131,10 @@ class Game extends Component {
               </section>
 
               <section className="play-buttons">
-                <Button
-                  color="stone"
-                  onClick={() => {
-                    this.setNextPhrase();
-                  }}
-                >
+                <Button color="stone" onClick={this.setNextPhrase}>
                   Skip
                 </Button>
-                <Button
-                  color="green"
-                  onClick={() => {
-                    this.setNextPlayer();
-                    this.setNextPhrase();
-                  }}
-                >
+                <Button color="green" onClick={once(this.onClickNext)}>
                   Next
                 </Button>
               </section>
