@@ -32,8 +32,8 @@ const getPhrases = (categoryArray, phrases = [], done) => {
   } else {
     const nextCategory = categoryArray[0];
     const newCategoryArray = categoryArray.slice(1);
-    getPhrasesForCategory(nextCategory, (err, phrases) => {
-      getPhrases(newCategoryArray, phrases, done);
+    getPhrasesForCategory(nextCategory, (err, categoryPhrases) => {
+      getPhrases(newCategoryArray, phrases.concat(categoryPhrases), done);
     });
   }
 };
