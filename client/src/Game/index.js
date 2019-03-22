@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { shuffle, isEmpty, throttle } from "lodash";
+import { shuffle, isEmpty } from "lodash";
 
 import AbortButton from "../common/Button/AbortButton";
 import Button from "../common/Button/Button";
@@ -53,16 +53,16 @@ class Game extends Component {
     console.log(message + JSON.stringify(this.state));
   };
 
-  setNextPlayer = throttle(() => {
+  setNextPlayer = () => {
     const { playerLineup, currentPlayer } = this.props;
     const nextPlayer = getNextPlayer(playerLineup, currentPlayer);
     this.props.socket.emit("change player", {
       gameId: this.props.gameId,
       nextPlayer
     });
-  }, 300);
+  };
 
-  setNextPhrase = throttle(() => {
+  setNextPhrase = () => {
     const { remainingPhrases, currentPhrase } = this.state;
     if (remainingPhrases[0] === currentPhrase) {
       remainingPhrases.shift();
@@ -73,7 +73,7 @@ class Game extends Component {
       nextPhrase,
       remainingPhrases
     });
-  }, 300);
+  };
 
   shouldGuess = () => {
     const { teams, teamId, currentPlayer, name } = this.props;
@@ -84,6 +84,12 @@ class Game extends Component {
     } else {
       return shouldGuessForOppositeTeam(teams);
     }
+  };
+
+  onClickNext = e => {
+    e.persist();
+    this.setNextPhrase();
+    this.setNextPlayer();
   };
 
   render() {
@@ -125,21 +131,10 @@ class Game extends Component {
               </section>
 
               <section className="play-buttons">
-                <Button
-                  color="stone"
-                  onClick={() => {
-                    this.setNextPhrase();
-                  }}
-                >
+                <Button color="stone" onClick={this.setNextPhrase}>
                   Skip
                 </Button>
-                <Button
-                  color="green"
-                  onClick={() => {
-                    this.setNextPlayer();
-                    this.setNextPhrase();
-                  }}
-                >
+                <Button color="green" onClick={this.onClickNext}>
                   Next
                 </Button>
               </section>
