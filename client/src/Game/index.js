@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { shuffle, isEmpty } from "lodash";
+import { shuffle, isEmpty, once } from "lodash";
 
 import AbortButton from "../common/Button/AbortButton";
 import Button from "../common/Button/Button";
@@ -134,7 +134,7 @@ class Game extends Component {
                 <Button color="stone" onClick={this.setNextPhrase}>
                   Skip
                 </Button>
-                <Button color="green" onClick={this.onClickNext}>
+                <Button color="green" onClick={once(this.onClickNext)}>
                   Next
                 </Button>
               </section>
