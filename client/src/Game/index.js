@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { shuffle, isEmpty, debounce } from "lodash";
+import { shuffle, isEmpty, throttle } from "lodash";
 
 import AbortButton from "../common/Button/AbortButton";
 import Button from "../common/Button/Button";
@@ -53,7 +53,7 @@ class Game extends Component {
     console.log(message + JSON.stringify(this.state));
   };
 
-  setNextPlayer = debounce(() => {
+  setNextPlayer = throttle(() => {
     const { playerLineup, currentPlayer } = this.props;
     const nextPlayer = getNextPlayer(playerLineup, currentPlayer);
     this.props.socket.emit("change player", {
@@ -62,7 +62,7 @@ class Game extends Component {
     });
   }, 300);
 
-  setNextPhrase = debounce(() => {
+  setNextPhrase = throttle(() => {
     const { remainingPhrases, currentPhrase } = this.state;
     if (remainingPhrases[0] === currentPhrase) {
       remainingPhrases.shift();
