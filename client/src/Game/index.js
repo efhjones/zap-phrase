@@ -60,7 +60,7 @@ class Game extends Component {
       gameId: this.props.gameId,
       nextPlayer
     });
-  });
+  }, 300);
 
   setNextPhrase = debounce(() => {
     const { remainingPhrases, currentPhrase } = this.state;
@@ -73,7 +73,7 @@ class Game extends Component {
       nextPhrase,
       remainingPhrases
     });
-  });
+  }, 300);
 
   shouldGuess = () => {
     const { teams, teamId, currentPlayer, name } = this.props;
