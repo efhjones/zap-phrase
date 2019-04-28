@@ -1,5 +1,5 @@
 // @flow
-import React, { Component } from "react";
+import React, { useState } from "react";
 import Loading from "../common/Loading";
 import Button from "../common/Button/Button";
 import AsyncButton from "../common/Button/AsyncButton";
@@ -18,127 +18,93 @@ import "./styles.css";
 
 const DEFAULT_COPY_TEXT = "Copy Invite Link";
 
-class JoinGame extends Component {
-  state = {
-    name: "",
-    copyButtonText: DEFAULT_COPY_TEXT,
-    canUseName: true
-  };
+const JoinGame = ({ teams, category, joinGame, ...props }) => {
+  const [name, setName] = useState(props.name || "");
+  const [copyButtonText, setCopyButtonText] = useState(DEFAULT_COPY_TEXT);
+  const canPlay = hasSufficientNumbersToPlay(teams);
+  const canUseName = name === "" || isNameAvailable(teams, name);
 
-  updateName = event => {
-    const name = event.target.value;
-    const canUseName = isNameAvailable(this.props.teams, name);
-    this.setState({
-      name,
-      canUseName
-    });
-  };
-
-  joinGame = e => {
-    e.preventDefault();
-    this.props.joinGame(this.state.name);
-    this.setState({
-      name: ""
-    });
-  };
-
-  copyInviteLink = () => {
-    copyText();
-    this.registerCopySuccess();
-  };
-
-  registerCopySuccess = () => {
-    this.toggleCopyButtonText();
-    setTimeout(this.toggleCopyButtonText, 1500);
-  };
-
-  toggleCopyButtonText = () => {
-    this.setState(({ copyButtonText }) => {
-      const copied = "Copied!";
-      return {
-        copyButtonText: copyButtonText === copied ? DEFAULT_COPY_TEXT : copied
-      };
-    });
-  };
-
-  render() {
-    const { state, props } = this;
-    const { teams, name, category } = props;
-    const canPlay = hasSufficientNumbersToPlay(teams);
-    const { canUseName, copyButtonText } = state;
-    return teams.length === 0 ? (
-      <Loading />
-    ) : (
-      <>
-        <ZapPhraseTitle />
-        <div className="vertical-section">
-          <div className="invite-and-join-section">
-            <div className="invite-link-section">
-              <div className="invite-link-and-button">
-                <Button color="green" onClick={this.copyInviteLink}>
-                  {copyButtonText}
-                </Button>
-              </div>
-            </div>
-            <div className="join-game-section">
-              {!props.name && (
-                <form className="join-game-form" id="join-game-form">
-                  <label
-                    className={`name-label vertical-section ${!canUseName &&
-                      "validation-failed"}`}
-                  >
-                    {!canUseName && (
-                      <>
-                        <span>Sorry, that name’s taken.</span>
-                        <span>Choose another?</span>
-                      </>
-                    )}
-                    <input
-                      className="name-field"
-                      type="text"
-                      value={state.name}
-                      onChange={this.updateName}
-                      placeholder="Hello there! What's your name?"
-                    />
-                  </label>
-                  <AsyncButton
-                    disabled={
-                      state.name.length === 0 || props.isWaiting || !canUseName
-                    }
-                    color="green"
-                    isLoading={props.isWaiting}
-                    type="submit"
-                    onClick={this.joinGame}
-                    size="small"
-                    style={{ width: "100%" }}
-                  >
-                    Join
-                  </AsyncButton>
-                </form>
-              )}
-              {Boolean(props.name) && (
-                <AsyncButton
-                  isLoading={props.isWaiting}
-                  disabled={!canPlay || props.isWaiting}
-                  color={canPlay ? "green" : "stone"}
-                  onClick={() => props.startGame(this.state.category)}
-                >
-                  {canPlay ? "start" : "need moar players"}
-                </AsyncButton>
-              )}
+  return teams.length === 0 ? (
+    <Loading />
+  ) : (
+    <>
+      <ZapPhraseTitle />
+      <div className="vertical-section">
+        <div className="invite-and-join-section">
+          <div className="invite-link-section">
+            <div className="invite-link-and-button">
+              <Button
+                color="green"
+                onClick={() => {
+                  copyText();
+                  setCopyButtonText("Copied!");
+                  setTimeout(() => setCopyButtonText(DEFAULT_COPY_TEXT), 1500);
+                }}
+              >
+                {copyButtonText}
+              </Button>
             </div>
           </div>
-          <Categories
-            onSelectCategory={props.onSelectCategory}
-            category={category}
-          />
-          <div className="current-players">
-            <Teams teams={teams} name={name} />
+          <div className="join-game-section">
+            {!props.name && (
+              <form className="join-game-form" id="join-game-form">
+                <label
+                  className={`name-label vertical-section ${!canUseName &&
+                    "validation-failed"}`}
+                >
+                  {!canUseName && (
+                    <>
+                      <span>Sorry, that name’s taken.</span>
+                      <span>Choose another?</span>
+                    </>
+                  )}
+                  <input
+                    className="name-field"
+                    type="text"
+                    value={name}
+                    onChange={e => setName(e.target.value)}
+                    placeholder="Hello there! What's your name?"
+                  />
+                </label>
+                <AsyncButton
+                  disabled={name.length === 0 || props.isWaiting || !canUseName}
+                  color="green"
+                  isLoading={props.isWaiting}
+                  type="submit"
+                  onClick={e => {
+                    e.preventDefault();
+                    joinGame(name);
+                    setName("");
+                  }}
+                  size="small"
+                  style={{ width: "100%" }}
+                >
+                  Join
+                </AsyncButton>
+              </form>
+            )}
+            {Boolean(props.name) && (
+              <AsyncButton
+                isLoading={props.isWaiting}
+                disabled={!canPlay || props.isWaiting}
+                color={canPlay ? "green" : "stone"}
+                onClick={() => props.startGame(category)}
+              >
+                {canPlay ? "start" : "need moar players"}
+              </AsyncButton>
+            )}
           </div>
         </div>
-      </>
-    );
-  }
-}
+        <Categories
+          onSelectCategory={props.onSelectCategory}
+          category={category}
+        />
+        <div className="current-players">
+          <Teams teams={teams} name={name} />
+        </div>
+      </div>
+    </>
+  );
+};
 
 export default JoinGame;
