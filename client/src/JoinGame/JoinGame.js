@@ -4,9 +4,9 @@ import Loading from "../common/Loading";
 import Button from "../common/Button/Button";
 import AsyncButton from "../common/Button/AsyncButton";
 
-import ZapPhraseTitle from "./ZapPhraseTitle";
-import Teams from "./Teams.js";
-import Categories from "./Categories";
+import ZapPhraseTitle from "./components/ZapPhraseTitle";
+import Teams from "./components/Teams";
+import Categories from "./components/categories/Categories";
 
 import {
   hasSufficientNumbersToPlay,
@@ -14,7 +14,7 @@ import {
 } from "../utils/gameUtils";
 import { copyText } from "../utils/utils";
 
-import "./styles.css";
+import "./JoinGame.css";
 
 const DEFAULT_COPY_TEXT = "Copy Invite Link";
 

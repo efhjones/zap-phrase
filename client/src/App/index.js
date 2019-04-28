@@ -2,7 +2,7 @@ import React, { Component } from "react";
 import socketIOClient from "socket.io-client";
 
 import Game from "../Game";
-import JoinGame from "../JoinGame";
+import JoinGame from "../JoinGame/JoinGame";
 import Loading from "../common/Loading";
 
 import { getNextPlayer, getAllPlayersInTeams } from "../utils/gameUtils";
