@@ -5,7 +5,7 @@ import Button from "../common/Button/Button";
 import AsyncButton from "../common/Button/AsyncButton";
 
 import ZapPhraseTitle from "./components/ZapPhraseTitle";
-import Teams from "./components/Teams";
+import Teams from "./components/teams/Teams";
 import Categories from "./components/categories/Categories";
 
 import {

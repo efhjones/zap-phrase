@@ -1,14 +1,16 @@
 // @flow
 import React from "react";
 
+import "./Teams.css";
+
 const Player = ({ name, isMe }) => (
   <li className={`team-member ${isMe ? "is-me" : ""}`}>{name}</li>
 );
 
-const Team = ({ team, name, i }) => {
+const Team = ({ team, name }) => {
   return (
-    <div key={team.id} className="team" id={`team-${i + 1}`}>
-      <div className="team-header" id={`team-header-${i + 1}`}>
+    <div key={team.id} className="team" id={`team-${team.id}`}>
+      <div className="team-header" id={`team-header-${team.id}`}>
         <h2>Team {team.id}</h2>
       </div>
       <ul className="team-members">
@@ -29,8 +31,8 @@ const Team = ({ team, name, i }) => {
 const Teams = ({ teams, name }) => {
   return (
     <div className="teams">
-      {teams.map((team, i) => {
-        return <Team key={team.id} team={team} name={name} i={i} />;
+      {teams.map(team => {
+        return <Team key={team.id} team={team} name={name} />;
       })}
     </div>
   );
