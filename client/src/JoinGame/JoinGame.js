@@ -74,7 +74,6 @@ const JoinGame = ({ teams, category, joinGame, ...props }) => {
                   onClick={e => {
                     e.preventDefault();
                     joinGame(name);
-                    setName("");
                   }}
                   size="small"
                   style={{ width: "100%" }}
