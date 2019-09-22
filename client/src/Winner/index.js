@@ -3,7 +3,7 @@ import React from "react";
 import Button from "../common/Button/Button";
 import "./styles.css";
 
-const gifs = [
+const happyGifs = [
   "https://thumbs.gfycat.com/GrouchyUnderstatedElk-size_restricted.gif",
   "https://media.giphy.com/media/82UBIE5yLWiI7Sdcnh/giphy.gif",
   "https://media.giphy.com/media/xSM46ernAUN3y/giphy.gif",
@@ -14,19 +14,31 @@ const gifs = [
   "https://media.giphy.com/media/9GIgZeDeZOl5Ls7QO9/giphy.gif"
 ];
 
-const getRandomGif = () => {
+const sadGifs = [
+  "https://media.giphy.com/media/1BXa2alBjrCXC/giphy.gif",
+  "https://media.giphy.com/media/3oEjI80DSa1grNPTDq/giphy.gif",
+  "https://media.giphy.com/media/TU76e2JHkPchG/giphy.gif",
+  "https://media.giphy.com/media/fuDUlcnXPIGQ3AQaYj/giphy.gif",
+  "https://media.giphy.com/media/MuztdWJQ4PR7i/giphy.gif",
+  "https://media.giphy.com/media/JEVqknUonZJWU/giphy.gif",
+  "https://media.giphy.com/media/CWhRp2LymONRm/giphy.gif",
+  "https://media.giphy.com/media/3ohs7Ys9J8XyFVheg0/giphy.gif"
+];
+
+const getRandomGif = isOnWinningTeam => {
+  const gifs = isOnWinningTeam ? happyGifs : sadGifs;
   const max = gifs.length;
   const min = 0;
   const randomIndex = Math.floor(Math.random() * (max - min) + min);
   return gifs[randomIndex];
 };
 
-const Winner = ({ team, startNewGame }) => (
+const Winner = ({ team, isOnWinningTeam, startNewGame }) => (
   <div className="winner-container">
     <h1 className={`${team === "1" ? "orange" : "blue"}-text winner-heading`}>
-      Team {team} wins!
+      {isOnWinningTeam ? "You Won!!" : "You Lost!!"}
     </h1>
-    <img src={getRandomGif()} alt="" />
+    <img src={getRandomGif(isOnWinningTeam)} alt="" />
     <Button color="blue" onClick={startNewGame}>
       New Game
     </Button>

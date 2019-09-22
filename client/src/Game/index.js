@@ -94,11 +94,12 @@ class Game extends Component {
 
   render() {
     const { state, props } = this;
-    const { currentPlayer, name, gameId, playerLineup = [] } = props;
+    const { currentPlayer, name, teamId, gameId, playerLineup = [] } = props;
     const isCurrentPlayer = currentPlayer && currentPlayer.name === name;
     const shouldGuess = this.shouldGuess();
     return state.winner ? (
       <Winner
+        isOnWinningTeam={state.winner === `team${teamId}`}
         team={state.winner === "team1" ? "1" : "2"}
         startNewGame={props.abortGame}
       />
