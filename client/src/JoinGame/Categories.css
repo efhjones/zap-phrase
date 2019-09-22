@@ -1,10 +1,11 @@
 @import "../common/Styles.css";
 
 .category-dropdown {
-  width: 30%;
-  height: 137px;
   display: flex;
+  height: 137px;
   margin: 20px auto;
+  max-width: 600px;
+  width: auto;
 }
 
 .select {
