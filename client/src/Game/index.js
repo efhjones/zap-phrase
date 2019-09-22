@@ -1,5 +1,5 @@
-import React, { Component } from "react";
-import { shuffle, isEmpty, once } from "lodash";
+import React from "react";
+import { once } from "lodash";
 
 import AbortButton from "../common/Button/AbortButton";
 import Button from "../common/Button/Button";
@@ -8,142 +8,119 @@ import Winner from "../Winner";
 import Guess from "./Guess";
 import Shh from "./Shh";
 import PlayerLineup from "./PlayerLineup";
+import { useSocket } from "../SocketContext/SocketContextProvider";
 
 import { getNextPlayer, shouldGuessForOppositeTeam } from "../utils/gameUtils";
 
 import "./styles.css";
 
-class Game extends Component {
-  constructor(props) {
-    super(props);
-    const shuffledPhrases = shuffle(props.phrases);
-    this.state = {
-      remainingPhrases: shuffledPhrases,
-      currentPhrase: shuffledPhrases[0],
-      winner: null
-    };
-
-    this.props.socket.on(
-      "phrase changed",
-      ({ nextPhrase, remainingPhrases, gameId }) => {
-        if (gameId === this.props.gameId) {
-          this.setState({ currentPhrase: nextPhrase, remainingPhrases });
-        }
-      }
-    );
-
-    this.props.socket.on("winner declared", ({ winner, gameId }) => {
-      if (this.props.gameId === gameId) {
-        this.setState({ winner });
-      }
-    });
+const shouldGuess = ({ teams, teamId, currentPlayer, name }) => {
+  if (currentPlayer && currentPlayer.name === name) {
+    return false;
+  } else if (currentPlayer && teamId === currentPlayer.teamId) {
+    return true;
+  } else {
+    return shouldGuessForOppositeTeam(teams);
   }
+};
 
-  componentDidUpdate(prevProps, prevState) {
-    if (isEmpty(prevState.remainingPhrases) && !isEmpty(this.props.phrases)) {
-      const shuffledPhrases = shuffle(this.props.phrases);
-      this.setState({
-        remainingPhrases: shuffledPhrases,
-        currentPhrase: shuffledPhrases[0]
-      });
-    }
-  }
+const findNextPhrase = (currentPhrase, remainingPhrases) => {
+  const indexOfCurrentPhrase = remainingPhrases.indexOf(currentPhrase);
+  const indexOfNextPhrase = indexOfCurrentPhrase + 1;
+  return remainingPhrases[indexOfNextPhrase];
+};
 
-  logState = message => {
-    console.log(message + JSON.stringify(this.state));
+const getNextPhrase = (currentPhrase, remainingPhrases) => {
+  const nextPhrase = findNextPhrase(currentPhrase, remainingPhrases);
+  const sliceIndex = remainingPhrases[0] === currentPhrase ? 2 : 1;
+  const newRemainingPhrases = remainingPhrases.slice(sliceIndex);
+  return {
+    currentPhrase: nextPhrase,
+    remainingPhrases: newRemainingPhrases
   };
+};
 
-  setNextPlayer = () => {
-    const { playerLineup, currentPlayer } = this.props;
-    const nextPlayer = getNextPlayer(playerLineup, currentPlayer);
-    this.props.socket.emit("change player", {
-      gameId: this.props.gameId,
-      nextPlayer
-    });
-  };
+const Game = props => {
+  const { name, gameId, playerLineup = [], teams, teamId } = props;
+  const {
+    currentPhrase,
+    remainingPhrases,
+    setCurrentPhrase,
+    setNextPlayer,
+    winner,
+    isWaiting,
+    currentPlayer
+  } = useSocket();
 
-  setNextPhrase = () => {
-    const { remainingPhrases, currentPhrase } = this.state;
-    if (remainingPhrases[0] === currentPhrase) {
-      remainingPhrases.shift();
-    }
-    const nextPhrase = remainingPhrases.shift();
-    this.props.socket.emit("change phrase", {
-      gameId: this.props.gameId,
-      nextPhrase,
-      remainingPhrases
-    });
-  };
+  const isCurrentPlayer = currentPlayer && currentPlayer.name === name;
 
-  shouldGuess = () => {
-    const { teams, teamId, currentPlayer, name } = this.props;
-    if (currentPlayer && currentPlayer.name === name) {
-      return false;
-    } else if (currentPlayer && teamId === currentPlayer.teamId) {
-      return true;
-    } else {
-      return shouldGuessForOppositeTeam(teams);
-    }
-  };
+  const shouldPlayerGuess = shouldGuess({
+    teams,
+    teamId,
+    currentPlayer,
+    name
+  });
 
-  onClickNext = e => {
-    e.persist();
-    this.setNextPhrase();
-    this.setNextPlayer();
-  };
+  return winner ? (
+    <Winner
+      team={winner === "team1" ? "1" : "2"}
+      startNewGame={props.abortGame}
+    />
+  ) : (
+    <>
+      <div className="game-control">
+        {props.isActive && (
+          <AbortButton onClick={props.abortGame} isLoading={isWaiting} />
+        )}
+        <Clock socket={props.socket} gameId={gameId} key="clock" />
+      </div>
+      <PlayerLineup playerLineup={playerLineup} currentPlayer={currentPlayer} />
+      <div className="vertical-section" key="game">
+        <section className="vertical-section">
+          <span className="player-name">
+            {shouldPlayerGuess ? <Guess /> : !isCurrentPlayer ? <Shh /> : null}
+          </span>
+        </section>
+        {isCurrentPlayer && (
+          <>
+            <section className="vertical-section">
+              <span className="phrase">{currentPhrase}</span>
+            </section>
 
-  render() {
-    const { state, props } = this;
-    const { currentPlayer, name, gameId, playerLineup = [] } = props;
-    const isCurrentPlayer = currentPlayer && currentPlayer.name === name;
-    const shouldGuess = this.shouldGuess();
-    return state.winner ? (
-      <Winner
-        team={state.winner === "team1" ? "1" : "2"}
-        startNewGame={props.abortGame}
-      />
-    ) : (
-      <>
-        <div className="game-control">
-          {props.isActive && (
-            <AbortButton
-              onClick={props.abortGame}
-              isLoading={state.isWaiting}
-            />
-          )}
-          <Clock socket={props.socket} gameId={gameId} key="clock" />
-        </div>
-        <PlayerLineup
-          playerLineup={playerLineup}
-          currentPlayer={currentPlayer}
-        />
-        <div className="vertical-section" key="game">
-          <section className="vertical-section">
-            <span className="player-name">
-              {shouldGuess && <Guess />}
-              {!isCurrentPlayer && !shouldGuess && <Shh />}
-            </span>
-          </section>
-          {isCurrentPlayer && (
-            <>
-              <section className="vertical-section">
-                <span className="phrase">{state.currentPhrase}</span>
-              </section>
-
-              <section className="play-buttons">
-                <Button color="stone" onClick={this.setNextPhrase}>
-                  Skip
-                </Button>
-                <Button color="green" onClick={once(this.onClickNext)}>
-                  Next
-                </Button>
-              </section>
-            </>
-          )}
-        </div>
-      </>
-    );
-  }
-}
+            <section className="play-buttons">
+              <Button
+                color="stone"
+                onClick={() => {
+                  const {
+                    currentPhrase: nextCurrentPhrase,
+                    remainingPhrases: nextRemainingPhrases
+                  } = getNextPhrase(currentPhrase, remainingPhrases);
+                  setCurrentPhrase(nextCurrentPhrase, nextRemainingPhrases);
+                }}
+              >
+                Skip
+              </Button>
+              <Button
+                color="green"
+                onClick={once(e => {
+                  e.persist();
+                  const {
+                    currentPhrase: nextCurrentPhrase,
+                    remainingPhrases: nextRemainingPhrases
+                  } = getNextPhrase(currentPhrase, remainingPhrases);
+                  const nextPlayer = getNextPlayer(playerLineup, currentPlayer);
+                  setNextPlayer(nextPlayer);
+                  setCurrentPhrase(nextCurrentPhrase, nextRemainingPhrases);
+                })}
+              >
+                Next
+              </Button>
+            </section>
+          </>
+        )}
+      </div>
+    </>
+  );
+};
 
 export default Game;
