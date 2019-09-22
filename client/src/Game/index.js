@@ -20,6 +20,7 @@ class Game extends Component {
     this.state = {
       remainingPhrases: shuffledPhrases,
       currentPhrase: shuffledPhrases[0],
+      shouldShowCurrentPhrase: true,
       winner: null
     };
 
@@ -31,6 +32,12 @@ class Game extends Component {
         }
       }
     );
+
+    this.props.socket.on("player changed", ({ gameId }) => {
+      if (gameId === this.props.gameId) {
+        this.setState({ shouldShowCurrentPhrase: true });
+      }
+    });
 
     this.props.socket.on("winner declared", ({ winner, gameId }) => {
       if (this.props.gameId === gameId) {
@@ -88,8 +95,16 @@ class Game extends Component {
 
   onClickNext = e => {
     e.persist();
-    this.setNextPhrase();
-    this.setNextPlayer();
+    const { setNextPhrase, setNextPlayer } = this;
+    this.setState(
+      {
+        shouldShowCurrentPhrase: false
+      },
+      () => {
+        setNextPlayer();
+        setNextPhrase();
+      }
+    );
   };
 
   render() {
@@ -125,7 +140,7 @@ class Game extends Component {
               {!isCurrentPlayer && !shouldGuess && <Shh />}
             </span>
           </section>
-          {isCurrentPlayer && (
+          {isCurrentPlayer && state.shouldShowCurrentPhrase && (
             <>
               <section className="vertical-section">
                 <span className="phrase">{state.currentPhrase}</span>
