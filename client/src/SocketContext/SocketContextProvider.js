@@ -48,6 +48,7 @@ export const useSocket = () => {
   };
 
   return {
+    socket,
     currentPlayer,
     currentPhrase,
     remainingPhrases,
@@ -56,6 +57,11 @@ export const useSocket = () => {
     setCurrentPhrase: onSetCurrentPhrase,
     setNextPlayer: onSetNextPlayer
   };
+};
+
+export const SocketConsumer = ({ children }) => {
+  const socketProps = useSocket();
+  return children(socketProps);
 };
 
 const SocketProvider = ({
