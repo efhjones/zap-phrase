@@ -355,6 +355,7 @@ class App extends Component {
             />
           ) : (
             <Game
+              gameId={this.state.gameId}
               isActive={this.state.isActive}
               teams={state.teams}
               teamId={this.state.teamId}
