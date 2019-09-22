@@ -83,24 +83,17 @@ class JoinGame extends Component {
             <div className="join-game-section">
               {!props.name && (
                 <form className="join-game-form" id="join-game-form">
-                  <label
-                    className={`name-label vertical-section ${!canUseName &&
-                      "validation-failed"}`}
-                  >
-                    {!canUseName && (
-                      <>
-                        <span>Sorry, that name’s taken.</span>
-                        <span>Choose another?</span>
-                      </>
-                    )}
-                    <input
-                      className="name-field"
-                      type="text"
-                      value={state.name}
-                      onChange={this.updateName}
-                      placeholder="Hello there! What's your name?"
-                    />
-                  </label>
+                  <input
+                    aria-label={
+                      canUseName ? "input name" : "invalid name, already taken."
+                    }
+                    id="name-field"
+                    className="name-field"
+                    type="text"
+                    value={state.name}
+                    onChange={this.updateName}
+                    placeholder="Name, please!"
+                  />
                   <AsyncButton
                     disabled={
                       state.name.length === 0 || props.isWaiting || !canUseName
@@ -112,7 +105,7 @@ class JoinGame extends Component {
                     size="small"
                     style={{ width: "100%" }}
                   >
-                    Join
+                    {!canUseName ? "Sorry, that name’s taken." : "Join"}
                   </AsyncButton>
                 </form>
               )}

@@ -60,14 +60,6 @@
   align-items: center;
 }
 
-.name-label {
-  width: 100%;
-  font-size: 2em;
-  text-transform: uppercase;
-  font-weight: 600;
-  margin: 20px 0;
-}
-
 .name-label.validation-failed {
   color: var(--orange);
 }
