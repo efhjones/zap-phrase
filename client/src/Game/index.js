@@ -93,13 +93,18 @@ class Game extends Component {
     }
   };
 
-  onClickNext = async e => {
+  onClickNext = e => {
     e.persist();
-    await this.setState({
-      shouldShowCurrentPhrase: false
-    });
-    this.setNextPhrase();
-    this.setNextPlayer();
+    const { setNextPhrase, setNextPlayer } = this;
+    this.setState(
+      {
+        shouldShowCurrentPhrase: false
+      },
+      () => {
+        setNextPhrase();
+        setNextPlayer();
+      }
+    );
   };
 
   render() {
