@@ -3,11 +3,11 @@ import { shuffle } from "lodash";
 
 const SocketContext = createContext();
 
-export const SocketConsumer = ({ children }) => {
-  const { phrases, currentPlayer, gameId: socketGameId } = useContext(
+export const useSocket = () => {
+  const { phrases, currentPlayer, gameId: socketGameId, socket } = useContext(
     SocketContext
   );
-  debugger;
+
   const shuffledPhrases = shuffle(phrases);
   const [currentPhrase, setCurrentPhrase] = useState(shuffledPhrases[0]);
   const [remainingPhrases, setRemainingPhrases] = useState(
@@ -15,55 +15,47 @@ export const SocketConsumer = ({ children }) => {
   );
   const [nextPlayer, setNextPlayer] = useState(currentPlayer);
   const [winner, setWinner] = useState(null);
-  return (
-    <SocketContext.Consumer>
-      {({ socket }) => {
-        socket.on(
-          "phrase changed",
-          ({ nextPhrase, remainingPhrases, gameId }) => {
-            if (gameId === socketGameId) {
-              setCurrentPhrase(nextPhrase);
-              setRemainingPhrases(remainingPhrases);
-            }
-          }
-        );
 
-        socket.on("winner declared", ({ winner, gameId }) => {
-          if (socketGameId === gameId) {
-            setWinner(winner);
-          }
-        });
+  socket.on("phrase changed", ({ nextPhrase, remainingPhrases, gameId }) => {
+    if (gameId === socketGameId) {
+      setCurrentPhrase(nextPhrase);
+      setRemainingPhrases(remainingPhrases);
+    }
+  });
 
-        const onSetNextPlayer = nextPlayer => {
-          socket.emit("change player", {
-            gameId: socketGameId,
-            nextPlayer
-          });
-          setNextPlayer(nextPlayer);
-          setCurrentPhrase(null);
-        };
+  socket.on("winner declared", ({ winner, gameId }) => {
+    if (socketGameId === gameId) {
+      setWinner(winner);
+    }
+  });
 
-        const onSetCurrentPhrase = (nextPhrase, remainingPhrases) => {
-          socket.emit("change phrase", {
-            gameId: socketGameId,
-            nextPhrase,
-            remainingPhrases
-          });
-          setCurrentPhrase(nextPhrase);
-        };
+  const onSetNextPlayer = nextPlayer => {
+    socket.emit("change player", {
+      gameId: socketGameId,
+      nextPlayer
+    });
+    setNextPlayer(nextPlayer);
+    setCurrentPhrase(null);
+  };
 
-        return children({
-          currentPlayer,
-          currentPhrase,
-          remainingPhrases,
-          nextPlayer,
-          winner,
-          setCurrentPhrase: onSetCurrentPhrase,
-          setNextPlayer: onSetNextPlayer
-        });
-      }}
-    </SocketContext.Consumer>
-  );
+  const onSetCurrentPhrase = (nextPhrase, remainingPhrases) => {
+    socket.emit("change phrase", {
+      gameId: socketGameId,
+      nextPhrase,
+      remainingPhrases
+    });
+    setCurrentPhrase(nextPhrase);
+  };
+
+  return {
+    currentPlayer,
+    currentPhrase,
+    remainingPhrases,
+    nextPlayer,
+    winner,
+    setCurrentPhrase: onSetCurrentPhrase,
+    setNextPlayer: onSetNextPlayer
+  };
 };
 
 const SocketProvider = ({
