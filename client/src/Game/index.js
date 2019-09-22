@@ -41,29 +41,27 @@ const getNextPhrase = (currentPhrase, remainingPhrases) => {
 };
 
 const Game = props => {
-  const {
-    currentPlayer,
-    name,
-    gameId,
-    playerLineup = [],
-    teams,
-    teamId
-  } = props;
-
-  const isCurrentPlayer = currentPlayer && currentPlayer.name === name;
-  const shouldPlayerGuess = shouldGuess({ teams, teamId, currentPlayer, name });
-
+  const { name, gameId, playerLineup = [], teams, teamId } = props;
   return (
-    <SocketConsumer {...props}>
+    <SocketConsumer>
       {({
         currentPhrase,
         remainingPhrases,
         setCurrentPhrase,
         setNextPlayer,
         winner,
-        isWaiting
-      }) =>
-        winner ? (
+        isWaiting,
+        currentPlayer
+      }) => {
+        const isCurrentPlayer = currentPlayer && currentPlayer.name === name;
+        const shouldPlayerGuess = shouldGuess({
+          teams,
+          teamId,
+          currentPlayer,
+          name
+        });
+
+        return winner ? (
           <Winner
             team={winner === "team1" ? "1" : "2"}
             startNewGame={props.abortGame}
@@ -138,8 +136,8 @@ const Game = props => {
               )}
             </div>
           </>
-        )
-      }
+        );
+      }}
     </SocketConsumer>
   );
 };

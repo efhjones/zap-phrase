@@ -335,7 +335,12 @@ class App extends Component {
     return state.isLoading ? (
       <Loading />
     ) : (
-      <SocketProvider socket={this.socket}>
+      <SocketProvider
+        socket={this.socket}
+        phrases={this.state.phrases}
+        currentPlayer={state.currentPlayer}
+        gameId={this.state.gameId}
+      >
         <main className="container">
           {!state.isActive ? (
             <JoinGame
@@ -351,11 +356,8 @@ class App extends Component {
           ) : (
             <Game
               isActive={this.state.isActive}
-              phrases={this.state.phrases}
               teams={state.teams}
-              gameId={this.state.gameId}
               teamId={this.state.teamId}
-              currentPlayer={state.currentPlayer}
               name={state.name}
               playerLineup={state.playerLineup}
               socket={this.socket}

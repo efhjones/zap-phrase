@@ -1,21 +1,27 @@
-import React, { createContext, useState } from "react";
+import React, { createContext, useState, useContext } from "react";
 import { shuffle } from "lodash";
 
 const SocketContext = createContext();
 
-export const SocketConsumer = ({ children, ...props }) => {
-  const phrases = shuffle(props.phrases);
-  const [currentPhrase, setCurrentPhrase] = useState(phrases[0]);
-  const [remainingPhrases, setRemainingPhrases] = useState(phrases.slice(1));
-  const [nextPlayer, setNextPlayer] = useState(props.currentPlayer);
+export const SocketConsumer = ({ children }) => {
+  const { phrases, currentPlayer, gameId: socketGameId } = useContext(
+    SocketContext
+  );
+  debugger;
+  const shuffledPhrases = shuffle(phrases);
+  const [currentPhrase, setCurrentPhrase] = useState(shuffledPhrases[0]);
+  const [remainingPhrases, setRemainingPhrases] = useState(
+    shuffledPhrases.slice(1)
+  );
+  const [nextPlayer, setNextPlayer] = useState(currentPlayer);
   const [winner, setWinner] = useState(null);
   return (
     <SocketContext.Consumer>
-      {socket => {
+      {({ socket }) => {
         socket.on(
           "phrase changed",
           ({ nextPhrase, remainingPhrases, gameId }) => {
-            if (gameId === props.gameId) {
+            if (gameId === socketGameId) {
               setCurrentPhrase(nextPhrase);
               setRemainingPhrases(remainingPhrases);
             }
@@ -23,14 +29,14 @@ export const SocketConsumer = ({ children, ...props }) => {
         );
 
         socket.on("winner declared", ({ winner, gameId }) => {
-          if (props.gameId === gameId) {
+          if (socketGameId === gameId) {
             setWinner(winner);
           }
         });
 
         const onSetNextPlayer = nextPlayer => {
           socket.emit("change player", {
-            gameId: props.gameId,
+            gameId: socketGameId,
             nextPlayer
           });
           setNextPlayer(nextPlayer);
@@ -39,7 +45,7 @@ export const SocketConsumer = ({ children, ...props }) => {
 
         const onSetCurrentPhrase = (nextPhrase, remainingPhrases) => {
           socket.emit("change phrase", {
-            gameId: props.gameId,
+            gameId: socketGameId,
             nextPhrase,
             remainingPhrases
           });
@@ -47,6 +53,7 @@ export const SocketConsumer = ({ children, ...props }) => {
         };
 
         return children({
+          currentPlayer,
           currentPhrase,
           remainingPhrases,
           nextPlayer,
@@ -59,8 +66,16 @@ export const SocketConsumer = ({ children, ...props }) => {
   );
 };
 
-const SocketProvider = ({ socket, children }) => (
-  <SocketContext.Provider value={socket}>{children}</SocketContext.Provider>
+const SocketProvider = ({
+  socket,
+  phrases,
+  currentPlayer,
+  gameId,
+  children
+}) => (
+  <SocketContext.Provider value={{ socket, phrases, currentPlayer, gameId }}>
+    {children}
+  </SocketContext.Provider>
 );
 
 export default SocketProvider;
