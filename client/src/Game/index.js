@@ -101,8 +101,8 @@ class Game extends Component {
         shouldShowCurrentPhrase: false
       },
       () => {
-        setNextPhrase();
         setNextPlayer();
+        setNextPhrase();
       }
     );
   };
