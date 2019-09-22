@@ -4,6 +4,7 @@ import socketIOClient from "socket.io-client";
 import Game from "../Game";
 import JoinGame from "../JoinGame/JoinGame";
 import Loading from "../common/Loading";
+import SocketProvider from "../SocketContext/SocketContextProvider";
 
 import { getNextPlayer, getAllPlayersInTeams } from "../utils/gameUtils";
 import { prepareGameForState } from "../utils/utils.js";
@@ -334,33 +335,35 @@ class App extends Component {
     return state.isLoading ? (
       <Loading />
     ) : (
-      <main className="container">
-        {!state.isActive ? (
-          <JoinGame
-            teams={state.teams}
-            name={state.name}
-            isWaiting={state.isWaiting}
-            category={state.category}
-            joinGame={this.joinGame}
-            socket={this.socket}
-            startGame={this.startGame}
-            onSelectCategory={this.selectCategory}
-          />
-        ) : (
-          <Game
-            isActive={this.state.isActive}
-            phrases={this.state.phrases}
-            teams={state.teams}
-            gameId={this.state.gameId}
-            teamId={this.state.teamId}
-            currentPlayer={state.currentPlayer}
-            name={state.name}
-            playerLineup={state.playerLineup}
-            socket={this.socket}
-            abortGame={this.abortGame}
-          />
-        )}
-      </main>
+      <SocketProvider socket={this.socket}>
+        <main className="container">
+          {!state.isActive ? (
+            <JoinGame
+              teams={state.teams}
+              name={state.name}
+              isWaiting={state.isWaiting}
+              category={state.category}
+              joinGame={this.joinGame}
+              socket={this.socket}
+              startGame={this.startGame}
+              onSelectCategory={this.selectCategory}
+            />
+          ) : (
+            <Game
+              isActive={this.state.isActive}
+              phrases={this.state.phrases}
+              teams={state.teams}
+              gameId={this.state.gameId}
+              teamId={this.state.teamId}
+              currentPlayer={state.currentPlayer}
+              name={state.name}
+              playerLineup={state.playerLineup}
+              socket={this.socket}
+              abortGame={this.abortGame}
+            />
+          )}
+        </main>
+      </SocketProvider>
     );
   }
 }
